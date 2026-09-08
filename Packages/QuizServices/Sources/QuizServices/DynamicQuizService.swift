@@ -1,4 +1,3 @@
-import CoreServices
 import Foundation
 import UIKit
 
@@ -12,8 +11,8 @@ public final class DynamicQuizService: DynamicQuizServing {
     private let preloader: any QuizPreloading
 
     public init(
-        network: any QuizNetworking = ServiceLocator.shared.resolve(),
-        preloader: any QuizPreloading = ServiceLocator.shared.resolve()
+        network: any QuizNetworking,
+        preloader: any QuizPreloading
     ) {
         self.network = network
         self.preloader = preloader

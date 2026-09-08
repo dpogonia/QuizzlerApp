@@ -20,9 +20,10 @@ public final class ServiceLocator: @unchecked Sendable {
 
     public func resolve<Service>(_ type: Service.Type = Service.self) -> Service {
         lock.lock()
-        defer { lock.unlock() }
-        guard let factory = factories[ObjectIdentifier(type)],
-              let service = factory() as? Service else {
+        let factory = factories[ObjectIdentifier(type)]
+        lock.unlock()
+
+        guard let factory, let service = factory() as? Service else {
             fatalError("Service \(type) is not registered in ServiceLocator")
         }
         return service

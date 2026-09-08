@@ -1,9 +1,10 @@
-import CoreServices
 import Foundation
 import UIKit
 
 public protocol QuizPreloading: AnyObject {
     func startIfNeeded()
+    func latestError() -> Error?
+    func retryFailedLoads()
     func rmCharacters() async throws -> [RMCharacter]
     func spCharacters() async throws -> [SPCharacter]
     func bmCharacters() async throws -> [BMCharacter]
@@ -11,29 +12,77 @@ public protocol QuizPreloading: AnyObject {
 
 public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
     private let network: any QuizNetworking
+    private let errorLock = NSLock()
 
     private var rmTask: Task<[RMCharacter], Error>?
     private var spTask: Task<[SPCharacter], Error>?
     private var bmTask: Task<[BMCharacter], Error>?
+    private var rmFailed = false
+    private var spFailed = false
+    private var bmFailed = false
+    private var storedError: Error?
 
-    public init(network: any QuizNetworking = ServiceLocator.shared.resolve()) {
+    public init(network: any QuizNetworking) {
         self.network = network
+    }
+
+    public func latestError() -> Error? {
+        errorLock.lock()
+        defer { errorLock.unlock() }
+        return storedError
+    }
+
+    public func retryFailedLoads() {
+        if rmFailed {
+            rmTask = nil
+            rmFailed = false
+        }
+        if spFailed {
+            spTask = nil
+            spFailed = false
+        }
+        if bmFailed {
+            bmTask = nil
+            bmFailed = false
+        }
+        errorLock.lock()
+        storedError = nil
+        errorLock.unlock()
+        startIfNeeded()
     }
 
     public func startIfNeeded() {
         if rmTask == nil {
             rmTask = Task { [network] in
-                try await Self.loadRMCharactersForGame(network: network)
+                do {
+                    return try await Self.loadRMCharactersForGame(network: network)
+                } catch {
+                    rmFailed = true
+                    remember(error)
+                    throw error
+                }
             }
         }
         if spTask == nil {
             spTask = Task { [network] in
-                try await Self.loadSPCharactersForGame(network: network)
+                do {
+                    return try await Self.loadSPCharactersForGame(network: network)
+                } catch {
+                    spFailed = true
+                    remember(error)
+                    throw error
+                }
             }
         }
         if bmTask == nil {
             bmTask = Task { [network] in
-                try await Self.loadBMCharactersForGame(network: network)
+                do {
+                    return try await Self.loadBMCharactersForGame(network: network)
+                } catch {
+                    bmFailed = true
+                    remember(error)
+                    throw error
+                }
             }
         }
     }
@@ -69,6 +118,12 @@ public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
         }
         bmTask = task
         return try await task.value
+    }
+
+    private func remember(_ error: Error) {
+        errorLock.lock()
+        storedError = error
+        errorLock.unlock()
     }
 
     private static func loadRMCharactersForGame(network: any QuizNetworking) async throws -> [RMCharacter] {

@@ -14,12 +14,12 @@ public struct ChipButton: View {
     public var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .font(QuizFont.bodySemibold)
+                .foregroundStyle(isSelected ? QuizColor.onSelectedChip : QuizColor.primaryText)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(isSelected ? Color(.systemGray) : Color(.tertiarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .padding(.vertical, QuizSpacing.compact)
+                .background(isSelected ? QuizColor.chipSelected : QuizColor.chipIdle)
+                .clipShape(RoundedRectangle(cornerRadius: QuizRadius.chip, style: .continuous))
         }
         .buttonStyle(.plain)
     }

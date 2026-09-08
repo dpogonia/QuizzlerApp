@@ -12,8 +12,8 @@ public final class BestScoreStore: BestScoreStoring {
     private let timerSettings: any QuizTimerSettingsProviding
 
     public init(
-        storage: any KeyValueStoring = ServiceLocator.shared.resolve(),
-        timerSettings: any QuizTimerSettingsProviding = ServiceLocator.shared.resolve()
+        storage: any KeyValueStoring,
+        timerSettings: any QuizTimerSettingsProviding
     ) {
         self.storage = storage
         self.timerSettings = timerSettings

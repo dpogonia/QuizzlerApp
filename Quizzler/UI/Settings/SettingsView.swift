@@ -26,34 +26,21 @@ private struct SettingsScreen: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(L10n.Settings.records)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Color.primary)
+            VStack(alignment: .leading, spacing: QuizSpacing.section) {
+                QuizSectionTitle(L10n.Settings.records)
 
                 ForEach(GameMode.allCases, id: \.self) { mode in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(mode.localizedTitle)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(Color.primary)
-                        Text(viewModel.records.recordText(for: mode))
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(Color.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    QuizInfoCard(
+                        title: mode.localizedTitle,
+                        subtitle: viewModel.records.recordText(for: mode)
+                    )
                 }
 
                 SectionCard(title: L10n.Settings.timer) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.Settings.timerHint)
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(Color.secondary)
+                    VStack(alignment: .leading, spacing: QuizSpacing.compact) {
+                        QuizHintText(L10n.Settings.timerHint)
 
-                        HStack(spacing: 8) {
+                        HStack(spacing: QuizSpacing.compact) {
                             ForEach(viewModel.timer.availableDurations, id: \.self) { value in
                                 ChipButton(
                                     title: QuizFormatters.duration(value),
@@ -67,12 +54,10 @@ private struct SettingsScreen: View {
                 }
 
                 SectionCard(title: L10n.Settings.theme) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.Settings.themeHint)
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(Color.secondary)
+                    VStack(alignment: .leading, spacing: QuizSpacing.compact) {
+                        QuizHintText(L10n.Settings.themeHint)
 
-                        HStack(spacing: 8) {
+                        HStack(spacing: QuizSpacing.compact) {
                             ForEach(Array(AppTheme.allCases), id: \.self) { theme in
                                 ChipButton(
                                     title: theme.localizedTitle,
@@ -85,10 +70,10 @@ private struct SettingsScreen: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, QuizSpacing.screen)
             .padding(.vertical, 24)
         }
-        .background(Color(.systemBackground))
+        .background(QuizColor.screenBackground)
         .navigationTitle(L10n.Settings.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)

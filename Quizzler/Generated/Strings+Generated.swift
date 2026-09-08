@@ -10,6 +10,16 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name
 internal enum L10n {
+  internal enum Splash {
+    /// Continue
+    internal static let `continue` = L10n.tr("Localizable", "splash.continue", fallback: "Continue")
+    /// Couldn't preload quiz data:\n%@
+    internal static func preloadError(_ p1: Any) -> String {
+      return L10n.tr("Localizable", "splash.preload_error", String(describing: p1), fallback: "Couldn't preload quiz data:\n%@")
+    }
+    /// Retry
+    internal static let retry = L10n.tr("Localizable", "splash.retry", fallback: "Retry")
+  }
   internal enum Error {
     /// Couldn't find the character image.
     internal static let southParkImage = L10n.tr("Localizable", "error.south_park_image", fallback: "Couldn't find the character image.")

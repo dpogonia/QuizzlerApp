@@ -42,16 +42,6 @@ public enum GameMode: String, CaseIterable, Sendable {
         }
     }
 
-    public var symbolName: String {
-        switch self {
-        case .movies: return "film"
-        case .rickAndMorty: return "atom"
-        case .southPark: return "mountain.2"
-        case .bigMouth: return "face.smiling"
-        case .humanResources: return "person.2"
-        }
-    }
-
     public var isAPIMode: Bool {
         self != .movies
     }
@@ -197,6 +187,26 @@ public struct BMCharacter: IdentifiableEntity, Sendable {
     public var id: Int { pageid }
 }
 
+public protocol QuizCharacter: IdentifiableEntity, Sendable {
+    var characterName: String { get }
+    var imageResource: String { get }
+}
+
+extension RMCharacter: QuizCharacter {
+    public var characterName: String { name }
+    public var imageResource: String { image }
+}
+
+extension SPCharacter: QuizCharacter {
+    public var characterName: String { name }
+    public var imageResource: String { "spwiki:\(name)" }
+}
+
+extension BMCharacter: QuizCharacter {
+    public var characterName: String { name }
+    public var imageResource: String { "bmwiki:\(name)" }
+}
+
 public struct FandomCategoryResponse: Codable {
     let query: FandomCategoryQuery
     struct FandomCategoryQuery: Codable {
@@ -270,29 +280,31 @@ public final class QuizLogicEngine: QuizLogicProviding {
     public func generateChallenge() -> DynamicQuizQuestion? {
         switch activeMode {
         case .rickAndMorty:
-            return generateRMChallenge()
+            return generateChallenge(from: rmCharacters, usedIDs: &usedRMCharacterIDs)
         case .southPark:
-            return generateSPChallenge()
+            return generateChallenge(from: spCharacters, usedIDs: &usedSPCharacterIDs)
         case .bigMouth, .humanResources:
-            return generateBMChallenge()
+            return generateChallenge(from: bmCharacters, usedIDs: &usedBMCharacterIDs)
         case .movies:
             return nil
         }
     }
 
-    // MARK: - Rick and Morty Logic
-    private func generateRMChallenge() -> DynamicQuizQuestion? {
-        let availableSubjects = rmCharacters.filter { !usedRMCharacterIDs.contains($0.id) }
+    private func generateChallenge<T: QuizCharacter>(
+        from characters: [T],
+        usedIDs: inout Set<T.ID>
+    ) -> DynamicQuizQuestion? {
+        let availableSubjects = characters.filter { !usedIDs.contains($0.id) }
         guard availableSubjects.count > 1 else { return nil }
 
-        let allNames = Set(availableSubjects.map { $0.name })
+        let allNames = Set(availableSubjects.map(\.characterName))
         let remainingNames = allNames.subtracting(usedQuestionNames)
         guard !remainingNames.isEmpty else { return nil }
 
         guard let subject = availableSubjects.randomElement() else { return nil }
 
-        let correctNameAvailable = !usedQuestionNames.contains(subject.name)
-        let wrongPool = allNames.subtracting([subject.name]).subtracting(usedQuestionNames)
+        let correctNameAvailable = !usedQuestionNames.contains(subject.characterName)
+        let wrongPool = allNames.subtracting([subject.characterName]).subtracting(usedQuestionNames)
         let wrongNameAvailable = !wrongPool.isEmpty
 
         guard correctNameAvailable || wrongNameAvailable else { return nil }
@@ -306,111 +318,21 @@ public final class QuizLogicEngine: QuizLogicProviding {
 
         let candidateName: String
         if useCorrectName {
-            candidateName = subject.name
+            candidateName = subject.characterName
         } else {
             guard let wrong = wrongPool.randomElement() else { return nil }
             candidateName = wrong
         }
 
         usedQuestionNames.insert(candidateName)
-        usedRMCharacterIDs.insert(subject.id)
-        let statementIsTrue = (candidateName == subject.name)
+        usedIDs.insert(subject.id)
 
         return DynamicQuizQuestion(
-            imageURL: subject.image,
+            imageURL: subject.imageResource,
             questionText: candidateName.uppercased(),
-            correctAnswer: statementIsTrue,
-            correctName: subject.name
+            correctAnswer: candidateName == subject.characterName,
+            correctName: subject.characterName
         )
     }
-
-    // MARK: - South Park Logic
-    private func generateSPChallenge() -> DynamicQuizQuestion? {
-        let availableSubjects = spCharacters.filter { !usedSPCharacterIDs.contains($0.id) }
-        guard availableSubjects.count > 1 else { return nil }
-
-        let allNames = Set(availableSubjects.map { $0.name })
-        let remainingNames = allNames.subtracting(usedQuestionNames)
-        guard !remainingNames.isEmpty else { return nil }
-
-        guard let subject = availableSubjects.randomElement() else { return nil }
-
-        let correctNameAvailable = !usedQuestionNames.contains(subject.name)
-        let wrongPool = allNames.subtracting([subject.name]).subtracting(usedQuestionNames)
-        let wrongNameAvailable = !wrongPool.isEmpty
-
-        guard correctNameAvailable || wrongNameAvailable else { return nil }
-
-        let useCorrectName: Bool
-        if correctNameAvailable && wrongNameAvailable {
-            useCorrectName = Bool.random()
-        } else {
-            useCorrectName = correctNameAvailable
-        }
-
-        let candidateName: String
-        if useCorrectName {
-            candidateName = subject.name
-        } else {
-            guard let wrong = wrongPool.randomElement() else { return nil }
-            candidateName = wrong
-        }
-
-        usedQuestionNames.insert(candidateName)
-        usedSPCharacterIDs.insert(subject.id)
-        let statementIsTrue = (candidateName == subject.name)
-
-        return DynamicQuizQuestion(
-            imageURL: "spwiki:\(subject.name)",
-            questionText: candidateName.uppercased(),
-            correctAnswer: statementIsTrue,
-            correctName: subject.name
-        )
-    }
-
-    // MARK: - Big Mouth / Human Resources Logic
-    private func generateBMChallenge() -> DynamicQuizQuestion? {
-        let availableSubjects = bmCharacters.filter { !usedBMCharacterIDs.contains($0.pageid) }
-        guard availableSubjects.count > 1 else { return nil }
-
-        let allNames = Set(availableSubjects.map { $0.name })
-        let remainingNames = allNames.subtracting(usedQuestionNames)
-        guard !remainingNames.isEmpty else { return nil }
-
-        guard let subject = availableSubjects.randomElement() else { return nil }
-
-        let correctNameAvailable = !usedQuestionNames.contains(subject.name)
-        let wrongPool = allNames.subtracting([subject.name]).subtracting(usedQuestionNames)
-        let wrongNameAvailable = !wrongPool.isEmpty
-
-        guard correctNameAvailable || wrongNameAvailable else { return nil }
-
-        let useCorrectName: Bool
-        if correctNameAvailable && wrongNameAvailable {
-            useCorrectName = Bool.random()
-        } else {
-            useCorrectName = correctNameAvailable
-        }
-
-        let candidateName: String
-        if useCorrectName {
-            candidateName = subject.name
-        } else {
-            guard let wrong = wrongPool.randomElement() else { return nil }
-            candidateName = wrong
-        }
-
-        usedQuestionNames.insert(candidateName)
-        usedBMCharacterIDs.insert(subject.pageid)
-        let statementIsTrue = (candidateName == subject.name)
-
-        return DynamicQuizQuestion(
-            imageURL: "bmwiki:\(subject.name)",
-            questionText: candidateName.uppercased(),
-            correctAnswer: statementIsTrue,
-            correctName: subject.name
-        )
-    }
-
 }
 

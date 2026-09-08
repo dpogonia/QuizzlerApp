@@ -26,28 +26,28 @@ public struct ModeCardView: View {
 
     public var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
+            HStack(spacing: QuizSpacing.section) {
                 Image(systemName: symbolName)
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(Color.primary)
+                    .font(QuizFont.symbol)
+                    .foregroundStyle(QuizColor.primaryText)
                     .frame(width: 28)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(Color.primary)
+                        .font(QuizFont.cardTitle)
+                        .foregroundStyle(QuizColor.primaryText)
                     Text(subtitle)
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(Color.secondary)
+                        .font(QuizFont.caption)
+                        .foregroundStyle(QuizColor.secondaryText)
                         .multilineTextAlignment(.leading)
                 }
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.vertical, QuizSpacing.section)
             .frame(maxWidth: .infinity, minHeight: 72, maxHeight: 72, alignment: .leading)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(QuizColor.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: QuizRadius.card, style: .continuous))
             .overlay {
                 if showsSpinner {
                     ProgressView()

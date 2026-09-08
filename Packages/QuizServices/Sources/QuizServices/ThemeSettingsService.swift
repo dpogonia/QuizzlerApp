@@ -10,7 +10,7 @@ public final class ThemeSettingsService: ThemeSettingsProviding {
 
     private let storageKey = "app_theme"
 
-    public init(storage: any KeyValueStoring = ServiceLocator.shared.resolve()) {
+    public init(storage: any KeyValueStoring) {
         self.storage = storage
     }
 

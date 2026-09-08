@@ -27,20 +27,18 @@ private struct StartScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Image(systemName: "popcorn.fill")
-                .font(.system(size: 88, weight: .bold))
-                .foregroundStyle(Color.primary)
+            QuizHeroIcon(systemName: SFSymbol.popcorn, size: 88)
                 .frame(width: 104, height: 104)
                 .padding(.top, 24)
 
             Text(viewModel.header.bestResultText)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
+                .font(QuizFont.bestScore)
+                .foregroundStyle(QuizColor.secondaryText)
+                .frame(maxWidth: .infinity, minHeight: 22, alignment: .leading)
+                .padding(.horizontal, QuizSpacing.screen)
+                .padding(.top, QuizSpacing.compact)
 
-            VStack(spacing: 16) {
+            VStack(spacing: QuizSpacing.stack) {
                 ForEach(viewModel.menu.modes, id: \.self) { mode in
                     ModeCardView(
                         symbolName: mode.symbolName,
@@ -54,7 +52,7 @@ private struct StartScreen: View {
                 }
 
                 ModeCardView(
-                    symbolName: "gearshape",
+                    symbolName: SFSymbol.gear,
                     title: L10n.Start.settings,
                     subtitle: L10n.Start.settingsSubtitle,
                     isDimmed: viewModel.menu.isLoading
@@ -62,23 +60,17 @@ private struct StartScreen: View {
                     showSettings = true
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, QuizSpacing.screen)
             .padding(.top, 24)
             .allowsHitTesting(!viewModel.menu.isLoading)
 
-            if viewModel.menu.isLoading {
-                ProgressView()
-                    .padding(.top, 24)
-                Text(L10n.Start.loading)
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(Color.secondary)
-                    .padding(.top, 8)
-            }
+            QuizLoadingStatus(text: L10n.Start.loading)
+                .opacity(viewModel.menu.isLoading ? 1 : 0)
 
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
+        .background(QuizColor.screenBackground)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
@@ -102,6 +94,18 @@ private struct StartScreen: View {
             Button(L10n.Start.ok, role: .cancel) {}
         } message: {
             Text(viewModel.menu.errorMessage ?? "")
+        }
+    }
+}
+
+private extension GameMode {
+    var symbolName: String {
+        switch self {
+        case .movies: return SFSymbol.film
+        case .rickAndMorty: return SFSymbol.atom
+        case .southPark: return SFSymbol.mountain
+        case .bigMouth: return SFSymbol.smiling
+        case .humanResources: return SFSymbol.people
         }
     }
 }

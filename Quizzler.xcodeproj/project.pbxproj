@@ -146,16 +146,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXSourcesBuildPhase section */
-		21BF29862F50805B0063B306 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
 /* Begin PBXShellScriptBuildPhase section */
 		21BF29C02F5091000063B306 /* SwiftGen */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -177,11 +167,20 @@
 				"$(SRCROOT)/Quizzler/Generated/Strings+Generated.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			enableUserScriptSandboxing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if command -v swiftgen >/dev/null 2>&1; then\n  swiftgen config run --config \"${SRCROOT}/swiftgen.yml\"\nelse\n  echo \"note: SwiftGen is not installed; using committed Generated/Strings+Generated.swift\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		21BF29862F50805B0063B306 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		21BF299E2F50805C0063B306 /* Debug */ = {

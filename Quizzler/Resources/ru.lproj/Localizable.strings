@@ -41,3 +41,7 @@
 "settings.best_score" = "Лучший результат (%@): %@";
 
 "error.south_park_image" = "Не удалось найти картинку персонажа.";
+
+"splash.continue" = "Продолжить";
+"splash.retry" = "Повторить";
+"splash.preload_error" = "Не удалось предзагрузить данные квиза:\n%@";

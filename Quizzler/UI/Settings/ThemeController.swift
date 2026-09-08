@@ -1,5 +1,4 @@
 import Combine
-import CoreServices
 import QuizServices
 import SwiftUI
 
@@ -9,7 +8,7 @@ final class ThemeController: ObservableObject {
 
     @Published var current: AppTheme
 
-    init(themeSettings: any ThemeSettingsProviding = ServiceLocator.shared.resolve()) {
+    init(themeSettings: any ThemeSettingsProviding) {
         self.themeSettings = themeSettings
         self.current = themeSettings.current
     }

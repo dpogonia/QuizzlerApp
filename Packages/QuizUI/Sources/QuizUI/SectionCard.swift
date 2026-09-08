@@ -10,18 +10,16 @@ public struct SectionCard<Content: View>: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: QuizSpacing.section) {
             if let title {
-                Text(title)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Color.primary)
+                QuizSectionTitle(title)
             }
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(.vertical, QuizSpacing.section)
+                .background(QuizColor.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: QuizRadius.row, style: .continuous))
         }
     }
 }

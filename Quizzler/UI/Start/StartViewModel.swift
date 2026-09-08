@@ -67,6 +67,7 @@ final class ModeMenuViewModel: ObservableObject {
             do {
                 let game = QuizSessionViewModel(
                     mode: mode,
+                    engine: QuizLogicEngine(),
                     quizService: quizService,
                     scoreStore: scoreStore,
                     timerSettings: timerSettings

@@ -6,8 +6,8 @@ struct QuizzlerApp: App {
     @StateObject private var environment: AppEnvironment
 
     init() {
-        AppAssembly.bootstrap()
-        let environment = AppEnvironment()
+        let locator = AppAssembly.bootstrap()
+        let environment = AppEnvironment(locator: locator)
         _environment = StateObject(wrappedValue: environment)
         _themeController = StateObject(wrappedValue: ThemeController(themeSettings: environment.themeSettings))
     }

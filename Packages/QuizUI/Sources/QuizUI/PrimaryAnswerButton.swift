@@ -14,14 +14,14 @@ public struct PrimaryAnswerButton: View {
     public var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(Color(.systemBackground))
+                .font(QuizFont.answer)
+                .foregroundStyle(QuizColor.inverseText)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .background(QuizColor.primaryText)
+                .clipShape(RoundedRectangle(cornerRadius: QuizRadius.answer, style: .continuous))
                 .overlay {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.primary, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: QuizRadius.answer, style: .continuous)
+                        .stroke(QuizColor.primaryText, lineWidth: 1)
                 }
         }
         .buttonStyle(.plain)

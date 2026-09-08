@@ -7,6 +7,8 @@ public struct PosterFrameView: View {
     let borderColor: Color
     let isLoading: Bool
 
+    private static let aspectRatio: CGFloat = 2 / 3
+
     public init(
         image: UIImage?,
         fillContent: Bool,
@@ -20,24 +22,39 @@ public struct PosterFrameView: View {
     }
 
     public var body: some View {
-        ZStack {
-            Color.black
-            if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: fillContent ? .fill : .fit)
+        GeometryReader { geo in
+            let posterSize = Self.fittedSize(in: geo.size)
+            ZStack {
+                QuizColor.posterBackground
+                if let image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: fillContent ? .fill : .fit)
+                        .frame(width: posterSize.width, height: posterSize.height)
+                        .clipped()
+                }
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.large)
+                        .tint(QuizColor.primaryText)
+                }
             }
-            if isLoading {
-                ProgressView()
-                    .controlSize(.large)
-                    .tint(Color.primary)
+            .frame(width: posterSize.width, height: posterSize.height)
+            .clipShape(RoundedRectangle(cornerRadius: QuizRadius.poster, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: QuizRadius.poster, style: .continuous)
+                    .strokeBorder(borderColor, lineWidth: 16)
             }
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .center)
         }
-        .aspectRatio(2 / 3, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(borderColor, lineWidth: 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private static func fittedSize(in container: CGSize) -> CGSize {
+        guard container.width > 0, container.height > 0 else { return .zero }
+        if container.width / container.height > aspectRatio {
+            return CGSize(width: container.height * aspectRatio, height: container.height)
         }
+        return CGSize(width: container.width, height: container.width / aspectRatio)
     }
 }

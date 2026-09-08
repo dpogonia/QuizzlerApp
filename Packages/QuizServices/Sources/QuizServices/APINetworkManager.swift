@@ -26,8 +26,8 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
     private let imageCache = NSCache<NSString, UIImage>()
 
     public init(
-        network: any NetworkServing = ServiceLocator.shared.resolve(),
-        parser: any JSONParsing = ServiceLocator.shared.resolve()
+        network: any NetworkServing,
+        parser: any JSONParsing
     ) {
         self.network = network
         self.parser = parser

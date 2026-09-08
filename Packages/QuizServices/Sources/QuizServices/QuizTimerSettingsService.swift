@@ -12,7 +12,7 @@ public final class QuizTimerSettingsService: QuizTimerSettingsProviding {
     private let storageKey = "quiz_timer_duration"
     public let availableDurations: [Int] = [3, 5, 7, 10, 15]
 
-    public init(storage: any KeyValueStoring = ServiceLocator.shared.resolve()) {
+    public init(storage: any KeyValueStoring) {
         self.storage = storage
     }
 

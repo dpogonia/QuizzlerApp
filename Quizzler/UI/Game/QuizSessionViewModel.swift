@@ -1,6 +1,6 @@
 import Combine
-import CoreServices
 import QuizServices
+import QuizUI
 import SwiftUI
 import UIKit
 
@@ -23,23 +23,23 @@ final class QuizSessionViewModel: ObservableObject {
     private var shouldFetchOnStart = true
     private var timerTask: Task<Void, Never>?
     private var loadTask: Task<Void, Never>?
+    private var revealTask: Task<Void, Never>?
     private var hasStarted = false
     private var cancellables = Set<AnyCancellable>()
 
     init(
         mode: GameMode,
-        engine: QuizLogicProviding? = nil,
-        quizService: any DynamicQuizServing = ServiceLocator.shared.resolve(),
-        scoreStore: any BestScoreStoring = ServiceLocator.shared.resolve(),
-        timerSettings: any QuizTimerSettingsProviding = ServiceLocator.shared.resolve()
+        engine: QuizLogicProviding,
+        quizService: any DynamicQuizServing,
+        scoreStore: any BestScoreStoring,
+        timerSettings: any QuizTimerSettingsProviding
     ) {
         self.activeMode = mode
-        self.engine = engine ?? QuizLogicEngine()
+        self.engine = engine
         self.quizService = quizService
         self.scoreRepository = scoreStore
         self.timerSettings = timerSettings
         self.store = GameStore()
-        self.store.question.usesPosterFill = mode == .movies
 
         store.objectWillChange
             .sink { [weak self] _ in
@@ -75,26 +75,23 @@ final class QuizSessionViewModel: ObservableObject {
 
     func startSession() {
         hasStarted = true
-        invalidateTimer()
-        score.currentQuestionIndex = 0
-        score.correctAnswers = 0
-        question.posterBorderColor = .white
-        question.questionText = ""
-        question.questionColor = .primary
-        score.showResult = false
+        cancelSessionTasks()
+        let maxQuestions = activeMode == .movies ? localMovieQuestions.count : 20
+        store.dispatch(
+            .prepareSession(
+                maxQuestions: maxQuestions,
+                usesPosterFill: activeMode == .movies
+            )
+        )
 
         switch activeMode {
         case .movies:
-            score.maxQuestions = localMovieQuestions.count
-            score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
             loadAndShowQuestion()
         case .rickAndMorty, .southPark, .bigMouth, .humanResources:
-            score.maxQuestions = 20
-            score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
             if shouldFetchOnStart {
                 fetchAPIDataAndStart()
             } else {
-                question.questionText = L10n.Game.loadingQuestion
+                store.dispatch(.showMessage(L10n.Game.loadingQuestion))
                 loadAndShowQuestion()
             }
         }
@@ -102,14 +99,14 @@ final class QuizSessionViewModel: ObservableObject {
 
     func answerYes() {
         guard question.buttonsEnabled else { return }
-        question.buttonsEnabled = false
+        store.dispatch(.lockAnswers)
         invalidateTimer()
         showAnswerResult(isCorrect: currentCorrectAnswer == true)
     }
 
     func answerNo() {
         guard question.buttonsEnabled else { return }
-        question.buttonsEnabled = false
+        store.dispatch(.lockAnswers)
         invalidateTimer()
         showAnswerResult(isCorrect: currentCorrectAnswer == false)
     }
@@ -119,23 +116,21 @@ final class QuizSessionViewModel: ObservableObject {
     }
 
     func leaveToMenu() {
-        invalidateTimer()
-        loadTask?.cancel()
-        score.shouldDismiss = true
+        cancelSessionTasks()
+        store.dispatch(.requestDismiss)
+    }
+
+    func dismissResult() {
+        store.dispatch(.hideResult)
     }
 
     func stop() {
-        invalidateTimer()
-        loadTask?.cancel()
+        cancelSessionTasks()
     }
 
     private func fetchAPIDataAndStart() {
         invalidateTimer()
-        question.buttonsEnabled = false
-        question.isLoading = true
-        question.posterImage = nil
-        question.questionText = L10n.Game.syncing
-        score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
+        store.dispatch(.beginSync)
 
         loadTask?.cancel()
         loadTask = Task {
@@ -145,22 +140,15 @@ final class QuizSessionViewModel: ObservableObject {
                 loadAndShowQuestion()
             } catch {
                 guard !Task.isCancelled else { return }
-                question.isLoading = false
-                question.posterBorderColor = .white
-                question.questionText = L10n.Game.loadError(error.localizedDescription)
+                store.dispatch(.syncFailed(L10n.Game.loadError(error.localizedDescription)))
             }
         }
     }
 
     private func loadAndShowQuestion() {
         invalidateTimer()
-        question.buttonsEnabled = false
         let shouldShowSpinner = !activeMode.isAPIMode || shouldFetchOnStart
-        if shouldShowSpinner {
-            question.isLoading = true
-            question.posterImage = nil
-            question.posterBorderColor = .white
-        }
+        store.dispatch(.beginQuestionLoad(showSpinner: shouldShowSpinner))
 
         loadTask?.cancel()
         loadTask = Task {
@@ -178,8 +166,7 @@ final class QuizSessionViewModel: ObservableObject {
             case .rickAndMorty, .southPark, .bigMouth, .humanResources:
                 guard let (finalQuestion, image) = await quizService.makeDynamicQuestion(using: engine) else {
                     guard !Task.isCancelled else { return }
-                    question.isLoading = false
-                    question.posterBorderColor = .white
+                    store.dispatch(.resetPosterBorder)
                     showNextQuestionOrResults()
                     return
                 }
@@ -191,17 +178,14 @@ final class QuizSessionViewModel: ObservableObject {
 
             guard !Task.isCancelled else { return }
 
-            question.usesPosterFill = activeMode == .movies
             currentCorrectAnswer = qAnswer
-            question.posterImage = qImage
-            score.counterText = QuizFormatters.scorePair(
-                correct: score.currentQuestionIndex + 1,
-                total: score.maxQuestions
+            store.dispatch(
+                .presentQuestion(
+                    image: qImage,
+                    text: qText,
+                    usesPosterFill: activeMode == .movies
+                )
             )
-            question.questionColor = .primary
-            question.questionText = qText
-            question.isLoading = false
-            question.buttonsEnabled = true
             startQuestionTimer()
         }
     }
@@ -211,22 +195,18 @@ final class QuizSessionViewModel: ObservableObject {
         let duration = timerSettings.currentDuration
         guard duration > 0 else { return }
 
-        timer.remainingTime = TimeInterval(duration)
-        updateTimerLabel()
+        store.dispatch(.startTimer(TimeInterval(duration)))
 
         timerTask = Task { [weak self] in
-            while let self, !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 50_000_000)
-                guard !Task.isCancelled else { return }
-                self.timer.remainingTime -= 0.05
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(50))
+                guard let self else { return }
+                self.store.dispatch(.timerTick)
                 if self.timer.remainingTime <= 0 {
-                    self.timer.remainingTime = 0
-                    self.updateTimerLabel()
                     self.invalidateTimer()
                     self.handleTimeExpired()
                     return
                 }
-                self.updateTimerLabel()
             }
         }
     }
@@ -236,52 +216,41 @@ final class QuizSessionViewModel: ObservableObject {
         timerTask = nil
     }
 
-    private func updateTimerLabel() {
-        let clamped = max(timer.remainingTime, 0)
-        let totalCentiseconds = Int((clamped * 100).rounded(.down))
-        let seconds = totalCentiseconds / 100
-        let centiseconds = totalCentiseconds % 100
-        timer.timerText = String(format: "%02d:%02d", seconds, centiseconds)
-
-        if seconds == 0 && centiseconds == 0 {
-            timer.timerColor = Color(.systemRed)
-        } else if seconds < 3 {
-            timer.timerColor = Color(.systemYellow)
-        } else {
-            timer.timerColor = .primary
-        }
+    private func cancelSessionTasks() {
+        invalidateTimer()
+        loadTask?.cancel()
+        revealTask?.cancel()
+        loadTask = nil
+        revealTask = nil
     }
 
     private func handleTimeExpired() {
-        question.buttonsEnabled = false
+        store.dispatch(.lockAnswers)
         showAnswerResult(isCorrect: false)
     }
 
     private func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            score.correctAnswers += 1
-        }
-
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(isCorrect ? .success : .error)
 
-        question.posterBorderColor = isCorrect ? Color(.systemGreen) : Color(.systemRed)
+        store.dispatch(
+            .revealAnswer(
+                isCorrect: isCorrect,
+                name: currentCorrectName.isEmpty ? nil : currentCorrectName
+            )
+        )
 
-        if !currentCorrectName.isEmpty {
-            question.questionColor = isCorrect ? Color(.systemGreen) : Color(.systemRed)
-            question.questionText = currentCorrectName.uppercased()
-        }
-
-        Task {
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            guard !Task.isCancelled else { return }
-            showNextQuestionOrResults()
+        revealTask?.cancel()
+        revealTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1.5))
+            guard let self, !Task.isCancelled else { return }
+            self.showNextQuestionOrResults()
         }
     }
 
     private func showNextQuestionOrResults() {
         invalidateTimer()
-        score.currentQuestionIndex += 1
+        store.dispatch(.advanceQuestion)
 
         if score.currentQuestionIndex >= score.maxQuestions {
             scoreRepository.updateBestScore(
@@ -289,14 +258,16 @@ final class QuizSessionViewModel: ObservableObject {
                 total: score.maxQuestions,
                 for: activeMode
             )
-            score.resultTitle = L10n.Game.roundOver
-            score.resultText = L10n.Game.yourResult(
-                QuizFormatters.scorePair(correct: score.correctAnswers, total: score.maxQuestions)
+            store.dispatch(
+                .finishRound(
+                    title: L10n.Game.roundOver,
+                    text: L10n.Game.yourResult(
+                        QuizFormatters.scorePair(correct: score.correctAnswers, total: score.maxQuestions)
+                    )
+                )
             )
-            question.posterBorderColor = .white
-            score.showResult = true
         } else {
-            question.posterBorderColor = .white
+            store.dispatch(.resetPosterBorder)
             loadAndShowQuestion()
         }
     }

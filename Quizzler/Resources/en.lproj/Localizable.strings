@@ -41,3 +41,7 @@
 "settings.best_score" = "Best score (%@): %@";
 
 "error.south_park_image" = "Couldn't find the character image.";
+
+"splash.continue" = "Continue";
+"splash.retry" = "Retry";
+"splash.preload_error" = "Couldn't preload quiz data:\n%@";

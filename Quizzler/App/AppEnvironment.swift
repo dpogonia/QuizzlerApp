@@ -12,7 +12,7 @@ final class AppEnvironment: ObservableObject {
     let quizService: any DynamicQuizServing
     let themeSettings: any ThemeSettingsProviding
 
-    init(locator: ServiceLocator = .shared) {
+    init(locator: ServiceLocator) {
         self.locator = locator
         self.preloader = locator.resolve()
         self.scoreStore = locator.resolve()
