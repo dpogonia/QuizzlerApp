@@ -2,10 +2,10 @@ import CoreServices
 import Foundation
 import UIKit
 
-enum QuizAPIError: LocalizedError {
+public enum QuizAPIError: LocalizedError {
     case southParkImageNotFound
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .southParkImageNotFound:
             return "Не удалось найти картинку персонажа."
@@ -13,19 +13,19 @@ enum QuizAPIError: LocalizedError {
     }
 }
 
-protocol QuizNetworking {
+public protocol QuizNetworking: Sendable {
     func fetchRMCharacters(page: Int) async throws -> [RMCharacter]
     func fetchSPCharacters(page: Int) async throws -> [SPCharacter]
     func fetchBMCharacters() async throws -> [BMCharacter]
     func fetchImage(from urlString: String) async throws -> UIImage
 }
 
-final class APINetworkManager: QuizNetworking {
+public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
     private let network: any NetworkServing
     private let parser: any JSONParsing
     private let imageCache = NSCache<NSString, UIImage>()
 
-    init(
+    public init(
         network: any NetworkServing = ServiceLocator.shared.resolve(),
         parser: any JSONParsing = ServiceLocator.shared.resolve()
     ) {
@@ -34,19 +34,19 @@ final class APINetworkManager: QuizNetworking {
         imageCache.countLimit = 150
     }
 
-    func fetchRMCharacters(page: Int) async throws -> [RMCharacter] {
+    public func fetchRMCharacters(page: Int) async throws -> [RMCharacter] {
         let urlString = "https://rickandmortyapi.com/api/character/?page=\(page)"
         let response: RMAPIResponse = try await fetchJSON(urlString: urlString)
         return response.results
     }
 
-    func fetchSPCharacters(page: Int) async throws -> [SPCharacter] {
+    public func fetchSPCharacters(page: Int) async throws -> [SPCharacter] {
         let urlString = "https://spapi.dev/api/characters?page=\(page)"
         let response: SPAPIResponse = try await fetchJSON(urlString: urlString)
         return response.data
     }
 
-    func fetchBMCharacters() async throws -> [BMCharacter] {
+    public func fetchBMCharacters() async throws -> [BMCharacter] {
         var components = URLComponents(string: "https://bigmouth.fandom.com/api.php")!
         components.queryItems = [
             URLQueryItem(name: "action", value: "query"),
@@ -63,7 +63,7 @@ final class APINetworkManager: QuizNetworking {
         return decoded.query.categorymembers.map { BMCharacter(pageid: $0.pageid, name: $0.title) }
     }
 
-    func fetchImage(from urlString: String) async throws -> UIImage {
+    public func fetchImage(from urlString: String) async throws -> UIImage {
         let cacheKey = NSString(string: urlString)
         if let cachedImage = imageCache.object(forKey: cacheKey) {
             return cachedImage

@@ -1,18 +1,9 @@
-import CoreServices
+import QuizServices
 import SwiftUI
 
 struct SplashView: View {
+    @EnvironmentObject private var environment: AppEnvironment
     var onFinish: () -> Void
-
-    private let preloader: any QuizPreloading
-
-    init(
-        preloader: any QuizPreloading = ServiceLocator.shared.resolve(),
-        onFinish: @escaping () -> Void
-    ) {
-        self.preloader = preloader
-        self.onFinish = onFinish
-    }
 
     var body: some View {
         ZStack {
@@ -23,7 +14,7 @@ struct SplashView: View {
                 .frame(width: 140, height: 140)
         }
         .onAppear {
-            preloader.startIfNeeded()
+            environment.preloader.startIfNeeded()
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 onFinish()
             }

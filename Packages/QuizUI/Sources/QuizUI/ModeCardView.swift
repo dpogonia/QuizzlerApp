@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ModeCardView: View {
+public struct ModeCardView: View {
     let symbolName: String
     let title: String
     let subtitle: String
@@ -8,7 +8,23 @@ struct ModeCardView: View {
     var showsSpinner = false
     var action: () -> Void
 
-    var body: some View {
+    public init(
+        symbolName: String,
+        title: String,
+        subtitle: String,
+        isDimmed: Bool = false,
+        showsSpinner: Bool = false,
+        action: @escaping () -> Void
+    ) {
+        self.symbolName = symbolName
+        self.title = title
+        self.subtitle = subtitle
+        self.isDimmed = isDimmed
+        self.showsSpinner = showsSpinner
+        self.action = action
+    }
+
+    public var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: symbolName)

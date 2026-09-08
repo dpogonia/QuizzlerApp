@@ -2,25 +2,25 @@ import CoreServices
 import Foundation
 import UIKit
 
-protocol QuizPreloading: AnyObject {
+public protocol QuizPreloading: AnyObject {
     func startIfNeeded()
     func rmCharacters() async throws -> [RMCharacter]
     func spCharacters() async throws -> [SPCharacter]
     func bmCharacters() async throws -> [BMCharacter]
 }
 
-final class QuizPreloader: QuizPreloading {
+public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
     private let network: any QuizNetworking
 
     private var rmTask: Task<[RMCharacter], Error>?
     private var spTask: Task<[SPCharacter], Error>?
     private var bmTask: Task<[BMCharacter], Error>?
 
-    init(network: any QuizNetworking = ServiceLocator.shared.resolve()) {
+    public init(network: any QuizNetworking = ServiceLocator.shared.resolve()) {
         self.network = network
     }
 
-    func startIfNeeded() {
+    public func startIfNeeded() {
         if rmTask == nil {
             rmTask = Task { [network] in
                 try await Self.loadRMCharactersForGame(network: network)
@@ -38,7 +38,7 @@ final class QuizPreloader: QuizPreloading {
         }
     }
 
-    func rmCharacters() async throws -> [RMCharacter] {
+    public func rmCharacters() async throws -> [RMCharacter] {
         if let task = rmTask {
             return try await task.value
         }
@@ -49,7 +49,7 @@ final class QuizPreloader: QuizPreloading {
         return try await task.value
     }
 
-    func spCharacters() async throws -> [SPCharacter] {
+    public func spCharacters() async throws -> [SPCharacter] {
         if let task = spTask {
             return try await task.value
         }
@@ -60,7 +60,7 @@ final class QuizPreloader: QuizPreloading {
         return try await task.value
     }
 
-    func bmCharacters() async throws -> [BMCharacter] {
+    public func bmCharacters() async throws -> [BMCharacter] {
         if let task = bmTask {
             return try await task.value
         }

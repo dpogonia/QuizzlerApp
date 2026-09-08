@@ -1,3 +1,4 @@
+import QuizUI
 import SwiftUI
 
 struct GameView: View {
@@ -11,12 +12,36 @@ struct GameView: View {
                 .padding(.top, 28)
 
             VStack(spacing: 16) {
-                poster
-                question
-                buttons
+                PosterFrameView(
+                    image: viewModel.question.posterImage,
+                    fillContent: viewModel.question.usesPosterFill,
+                    borderColor: viewModel.question.posterBorderColor,
+                    isLoading: viewModel.question.isLoading
+                )
+                Text(viewModel.question.questionText)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(viewModel.question.questionColor)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 72)
+                HStack(spacing: 16) {
+                    PrimaryAnswerButton(
+                        title: "НЕТ",
+                        isEnabled: viewModel.question.buttonsEnabled,
+                        action: viewModel.answerNo
+                    )
+                    PrimaryAnswerButton(
+                        title: "ДА",
+                        isEnabled: viewModel.question.buttonsEnabled,
+                        action: viewModel.answerYes
+                    )
+                }
+                .frame(height: 60)
+                .padding(.bottom, 8)
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color(.systemBackground))
@@ -27,12 +52,15 @@ struct GameView: View {
         .onDisappear {
             viewModel.stop()
         }
-        .onChange(of: viewModel.shouldDismiss) { _, shouldDismiss in
+        .onChange(of: viewModel.score.shouldDismiss) { _, shouldDismiss in
             if shouldDismiss {
                 dismiss()
             }
         }
-        .alert(viewModel.resultTitle, isPresented: $viewModel.showResult) {
+        .alert(viewModel.score.resultTitle, isPresented: Binding(
+            get: { viewModel.score.showResult },
+            set: { viewModel.score.showResult = $0 }
+        )) {
             Button("Сыграть ещё раз") {
                 viewModel.playAgain()
             }
@@ -40,7 +68,7 @@ struct GameView: View {
                 viewModel.leaveToMenu()
             }
         } message: {
-            Text(viewModel.resultText)
+            Text(viewModel.score.resultText)
         }
     }
 
@@ -56,75 +84,15 @@ struct GameView: View {
             }
             .buttonStyle(.plain)
 
-            Text(viewModel.timerText)
+            Text(viewModel.timer.timerText)
                 .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(viewModel.timerColor)
+                .foregroundStyle(viewModel.timer.timerColor)
 
             Spacer()
 
-            Text(viewModel.counterText)
+            Text(viewModel.score.counterText)
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(Color.primary)
         }
-    }
-
-    private var poster: some View {
-        ZStack {
-            Color.black
-            if let image = viewModel.posterImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: viewModel.usesPosterFill ? .fill : .fit)
-            }
-            if viewModel.isLoading {
-                ProgressView()
-                    .controlSize(.large)
-                    .tint(Color.primary)
-            }
-        }
-        .aspectRatio(2 / 3, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(viewModel.posterBorderColor, lineWidth: 16)
-        }
-    }
-
-    private var question: some View {
-        Text(viewModel.questionText)
-            .font(.system(size: 20, weight: .bold))
-            .foregroundStyle(viewModel.questionColor)
-            .multilineTextAlignment(.center)
-            .lineLimit(3)
-            .truncationMode(.tail)
-            .frame(maxWidth: .infinity)
-            .frame(height: 72)
-    }
-
-    private var buttons: some View {
-        HStack(spacing: 16) {
-            answerButton(title: "НЕТ", action: viewModel.answerNo)
-            answerButton(title: "ДА", action: viewModel.answerYes)
-        }
-        .frame(height: 60)
-        .padding(.bottom, 8)
-    }
-
-    private func answerButton(title: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(Color(.systemBackground))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.primary, lineWidth: 1)
-                }
-        }
-        .buttonStyle(.plain)
-        .opacity(viewModel.buttonsEnabled ? 1 : 0.5)
-        .disabled(!viewModel.buttonsEnabled)
     }
 }

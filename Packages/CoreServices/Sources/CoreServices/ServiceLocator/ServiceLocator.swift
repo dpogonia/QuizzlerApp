@@ -1,6 +1,5 @@
 import Foundation
 
-/// Универсальный Service Locator на дженериках: регистрация и резолв по типу протокола.
 public final class ServiceLocator: @unchecked Sendable {
     public static let shared = ServiceLocator()
 

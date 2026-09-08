@@ -2,18 +2,16 @@ import CoreServices
 import Foundation
 import UIKit
 
-protocol DynamicQuizServing {
+public protocol DynamicQuizServing {
     func prefetchCharactersIfNeeded(for mode: GameMode, into engine: QuizLogicProviding) async throws
     func makeDynamicQuestion(using engine: QuizLogicProviding) async -> (DynamicQuizQuestion, UIImage)?
 }
 
-/// Отвечает за API-часть динамических викторин,
-/// чтобы ViewController не работал напрямую с сетью.
-final class DynamicQuizService: DynamicQuizServing {
+public final class DynamicQuizService: DynamicQuizServing {
     private let network: any QuizNetworking
     private let preloader: any QuizPreloading
 
-    init(
+    public init(
         network: any QuizNetworking = ServiceLocator.shared.resolve(),
         preloader: any QuizPreloading = ServiceLocator.shared.resolve()
     ) {
@@ -21,7 +19,7 @@ final class DynamicQuizService: DynamicQuizServing {
         self.preloader = preloader
     }
 
-    func prefetchCharactersIfNeeded(for mode: GameMode, into engine: QuizLogicProviding) async throws {
+    public func prefetchCharactersIfNeeded(for mode: GameMode, into engine: QuizLogicProviding) async throws {
         switch mode {
         case .rickAndMorty:
             let targetPage = Int.random(in: 1...42)
@@ -42,7 +40,7 @@ final class DynamicQuizService: DynamicQuizServing {
         }
     }
 
-    func makeDynamicQuestion(using engine: QuizLogicProviding) async -> (DynamicQuizQuestion, UIImage)? {
+    public func makeDynamicQuestion(using engine: QuizLogicProviding) async -> (DynamicQuizQuestion, UIImage)? {
         var dynamicQuestion: DynamicQuizQuestion?
         var loadedImage: UIImage?
 

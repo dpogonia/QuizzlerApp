@@ -3,10 +3,13 @@ import SwiftUI
 @main
 struct QuizzlerApp: App {
     @StateObject private var themeController: ThemeController
+    @StateObject private var environment: AppEnvironment
 
     init() {
         AppAssembly.bootstrap()
-        _themeController = StateObject(wrappedValue: ThemeController())
+        let environment = AppEnvironment()
+        _environment = StateObject(wrappedValue: environment)
+        _themeController = StateObject(wrappedValue: ThemeController(themeSettings: environment.themeSettings))
     }
 
     var body: some Scene {
@@ -14,6 +17,7 @@ struct QuizzlerApp: App {
             RootView()
                 .preferredColorScheme(themeController.colorScheme)
                 .environmentObject(themeController)
+                .environmentObject(environment)
         }
     }
 }

@@ -1,20 +1,20 @@
 import CoreServices
 import Foundation
 
-protocol ThemeSettingsProviding: AnyObject {
+public protocol ThemeSettingsProviding: AnyObject {
     var current: AppTheme { get set }
 }
 
-final class ThemeSettingsService: ThemeSettingsProviding {
+public final class ThemeSettingsService: ThemeSettingsProviding {
     private let storage: any KeyValueStoring
 
     private let storageKey = "app_theme"
 
-    init(storage: any KeyValueStoring = ServiceLocator.shared.resolve()) {
+    public init(storage: any KeyValueStoring = ServiceLocator.shared.resolve()) {
         self.storage = storage
     }
 
-    var current: AppTheme {
+    public var current: AppTheme {
         get {
             if let raw = storage.string(forKey: storageKey),
                let value = AppTheme(rawValue: raw) {

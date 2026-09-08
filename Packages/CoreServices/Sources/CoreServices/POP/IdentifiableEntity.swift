@@ -1,6 +1,5 @@
 import Foundation
 
-/// POP + type constraints: расширения доступны только коллекциям с IdentifiableEntity.
 public protocol IdentifiableEntity {
     associatedtype ID: Hashable
     var id: ID { get }

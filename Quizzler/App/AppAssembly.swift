@@ -1,5 +1,6 @@
 import CoreServices
 import Foundation
+import QuizServices
 
 enum AppAssembly {
     static func bootstrap() {

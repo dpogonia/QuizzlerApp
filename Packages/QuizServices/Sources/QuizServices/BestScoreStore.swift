@@ -1,17 +1,17 @@
 import CoreServices
 import Foundation
 
-protocol BestScoreStoring: AnyObject {
+public protocol BestScoreStoring: AnyObject {
     func bestScore(for mode: GameMode) -> (score: Int, total: Int)?
     func updateBestScore(correct: Int, total: Int, for mode: GameMode)
     func bestOverall() -> (mode: GameMode, score: Int, total: Int)?
 }
 
-final class BestScoreStore: BestScoreStoring {
+public final class BestScoreStore: BestScoreStoring {
     private let storage: any KeyValueStoring
     private let timerSettings: any QuizTimerSettingsProviding
 
-    init(
+    public init(
         storage: any KeyValueStoring = ServiceLocator.shared.resolve(),
         timerSettings: any QuizTimerSettingsProviding = ServiceLocator.shared.resolve()
     ) {
@@ -19,7 +19,7 @@ final class BestScoreStore: BestScoreStoring {
         self.timerSettings = timerSettings
     }
 
-    func bestScore(for mode: GameMode) -> (score: Int, total: Int)? {
+    public func bestScore(for mode: GameMode) -> (score: Int, total: Int)? {
         let timer = timerSettings.currentDuration
         let score = storage.integer(forKey: bestScoreKey(for: mode, timer: timer))
         let total = storage.integer(forKey: bestTotalKey(for: mode, timer: timer))
@@ -27,7 +27,7 @@ final class BestScoreStore: BestScoreStoring {
         return (score, total)
     }
 
-    func updateBestScore(correct: Int, total: Int, for mode: GameMode) {
+    public func updateBestScore(correct: Int, total: Int, for mode: GameMode) {
         guard total > 0 else { return }
         if let current = bestScore(for: mode), correct <= current.score {
             return
@@ -37,7 +37,7 @@ final class BestScoreStore: BestScoreStoring {
         storage.set(total, forKey: bestTotalKey(for: mode, timer: timer))
     }
 
-    func bestOverall() -> (mode: GameMode, score: Int, total: Int)? {
+    public func bestOverall() -> (mode: GameMode, score: Int, total: Int)? {
         var best: (mode: GameMode, score: Int, total: Int)?
         for mode in GameMode.allCases {
             if let value = bestScore(for: mode) {

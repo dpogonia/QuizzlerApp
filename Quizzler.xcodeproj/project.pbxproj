@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		21BF29A22F50805D0063B306 /* CoreServices in Frameworks */ = {isa = PBXBuildFile; productRef = 21BF29A32F50805D0063B306 /* CoreServices */; };
+		21BF29B02F50805E0063B306 /* QuizServices in Frameworks */ = {isa = PBXBuildFile; productRef = 21BF29B12F50805E0063B306 /* QuizServices */; };
+		21BF29B32F50805E0063B306 /* QuizUI in Frameworks */ = {isa = PBXBuildFile; productRef = 21BF29B42F50805E0063B306 /* QuizUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				21BF29A22F50805D0063B306 /* CoreServices in Frameworks */,
+				21BF29B02F50805E0063B306 /* QuizServices in Frameworks */,
+				21BF29B32F50805E0063B306 /* QuizUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +88,8 @@
 			name = Quizzler;
 			packageProductDependencies = (
 				21BF29A32F50805D0063B306 /* CoreServices */,
+				21BF29B12F50805E0063B306 /* QuizServices */,
+				21BF29B42F50805E0063B306 /* QuizUI */,
 			);
 			productName = Quizzler;
 			productReference = 21BF298A2F50805B0063B306 /* Quizzler.app */;
@@ -115,6 +121,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				21BF29A42F50805D0063B306 /* XCLocalSwiftPackageReference "Packages/CoreServices" */,
+				21BF29B22F50805E0063B306 /* XCLocalSwiftPackageReference "Packages/QuizServices" */,
+				21BF29B52F50805E0063B306 /* XCLocalSwiftPackageReference "Packages/QuizUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 21BF298B2F50805B0063B306 /* Products */;
@@ -370,6 +378,14 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/CoreServices;
 		};
+		21BF29B22F50805E0063B306 /* XCLocalSwiftPackageReference "Packages/QuizServices" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/QuizServices;
+		};
+		21BF29B52F50805E0063B306 /* XCLocalSwiftPackageReference "Packages/QuizUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/QuizUI;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -377,6 +393,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 21BF29A42F50805D0063B306 /* XCLocalSwiftPackageReference "Packages/CoreServices" */;
 			productName = CoreServices;
+		};
+		21BF29B12F50805E0063B306 /* QuizServices */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 21BF29B22F50805E0063B306 /* XCLocalSwiftPackageReference "Packages/QuizServices" */;
+			productName = QuizServices;
+		};
+		21BF29B42F50805E0063B306 /* QuizUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 21BF29B52F50805E0063B306 /* XCLocalSwiftPackageReference "Packages/QuizUI" */;
+			productName = QuizUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
