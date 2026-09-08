@@ -1,0 +1,10 @@
+input_dir: Quizzler/Resources
+output_dir: Quizzler/Generated
+strings:
+  inputs:
+    - en.lproj
+  outputs:
+    - templateName: structured-swift5
+      output: Strings+Generated.swift
+      params:
+        enumName: L10n

@@ -22,9 +22,12 @@ final class RecordsViewModel: ObservableObject {
 
     func recordText(for mode: GameMode) -> String {
         if let best = scoreStore.bestScore(for: mode) {
-            return "Лучший результат (\(duration)s): \(best.score)/\(best.total)"
+            return L10n.Settings.bestScore(
+                QuizFormatters.duration(duration),
+                QuizFormatters.scorePair(correct: best.score, total: best.total)
+            )
         }
-        return "Нет рекордов для скорости \(duration) секунд"
+        return L10n.Settings.noRecords(duration)
     }
 }
 

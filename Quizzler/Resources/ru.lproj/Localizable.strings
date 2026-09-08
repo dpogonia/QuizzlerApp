@@ -1,0 +1,43 @@
+"start.settings" = "Настройки";
+"start.settings_subtitle" = "Рекорды, таймер, тема";
+"start.loading" = "Загрузка...";
+"start.error_title" = "Ошибка";
+"start.ok" = "OK";
+"start.load_failed" = "Не удалось загрузить данные. Попробуйте ещё раз.\n%@";
+"start.best_score" = "Рекорд: %@ — %@";
+
+"mode.movies.title" = "Рейтинг IMDb";
+"mode.movies.subtitle" = "Угадай рейтинг фильма";
+"mode.rickAndMorty.title" = "Rick and Morty";
+"mode.rickAndMorty.subtitle" = "Wubba Lubba Dub-Dub";
+"mode.southPark.title" = "South Park";
+"mode.southPark.subtitle" = "Oh my God, they killed Kenny";
+"mode.bigMouth.title" = "Big Mouth";
+"mode.bigMouth.subtitle" = "Гормоны и монстры";
+"mode.humanResources.title" = "Human Resources";
+"mode.humanResources.subtitle" = "Офис монстров";
+
+"game.yes" = "ДА";
+"game.no" = "НЕТ";
+"game.play_again" = "Сыграть ещё раз";
+"game.back_to_menu" = "К выбору игры";
+"game.round_over" = "Этот раунд окончен!";
+"game.your_result" = "Ваш результат: %@";
+"game.loading_question" = "Загрузка вопроса…";
+"game.syncing" = "Синхронизация с сервером…";
+"game.load_error" = "Ошибка загрузки данных: %@";
+"game.movie_rating_question" = "Рейтинг этого фильма больше чем 6?";
+"game.character_name_question" = "Имя этого персонажа — %@?";
+
+"settings.title" = "Настройки";
+"settings.records" = "Рекорды";
+"settings.timer" = "Таймер";
+"settings.timer_hint" = "За сколько секунд ты готов проиграть";
+"settings.theme" = "Тема";
+"settings.theme_hint" = "На чьей стороне ты";
+"settings.theme.light" = "Светлая";
+"settings.theme.dark" = "Тёмная";
+"settings.theme.system" = "Системная";
+"settings.best_score" = "Лучший результат (%@): %@";
+
+"error.south_park_image" = "Не удалось найти картинку персонажа.";

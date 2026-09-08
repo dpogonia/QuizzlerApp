@@ -28,12 +28,12 @@ struct GameView: View {
                     .frame(height: 72)
                 HStack(spacing: 16) {
                     PrimaryAnswerButton(
-                        title: "НЕТ",
+                        title: L10n.Game.no,
                         isEnabled: viewModel.question.buttonsEnabled,
                         action: viewModel.answerNo
                     )
                     PrimaryAnswerButton(
-                        title: "ДА",
+                        title: L10n.Game.yes,
                         isEnabled: viewModel.question.buttonsEnabled,
                         action: viewModel.answerYes
                     )
@@ -61,10 +61,10 @@ struct GameView: View {
             get: { viewModel.score.showResult },
             set: { viewModel.score.showResult = $0 }
         )) {
-            Button("Сыграть ещё раз") {
+            Button(L10n.Game.playAgain) {
                 viewModel.playAgain()
             }
-            Button("К выбору игры", role: .cancel) {
+            Button(L10n.Game.backToMenu, role: .cancel) {
                 viewModel.leaveToMenu()
             }
         } message: {

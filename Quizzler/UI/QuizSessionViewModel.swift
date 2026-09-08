@@ -86,15 +86,15 @@ final class QuizSessionViewModel: ObservableObject {
         switch activeMode {
         case .movies:
             score.maxQuestions = localMovieQuestions.count
-            score.counterText = "0/\(score.maxQuestions)"
+            score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
             loadAndShowQuestion()
         case .rickAndMorty, .southPark, .bigMouth, .humanResources:
             score.maxQuestions = 20
-            score.counterText = "0/\(score.maxQuestions)"
+            score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
             if shouldFetchOnStart {
                 fetchAPIDataAndStart()
             } else {
-                question.questionText = "Загрузка вопроса…"
+                question.questionText = L10n.Game.loadingQuestion
                 loadAndShowQuestion()
             }
         }
@@ -134,8 +134,8 @@ final class QuizSessionViewModel: ObservableObject {
         question.buttonsEnabled = false
         question.isLoading = true
         question.posterImage = nil
-        question.questionText = "Синхронизация с сервером…"
-        score.counterText = "0/\(score.maxQuestions)"
+        question.questionText = L10n.Game.syncing
+        score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
 
         loadTask?.cancel()
         loadTask = Task {
@@ -147,7 +147,7 @@ final class QuizSessionViewModel: ObservableObject {
                 guard !Task.isCancelled else { return }
                 question.isLoading = false
                 question.posterBorderColor = .white
-                question.questionText = "Ошибка загрузки данных: \(error.localizedDescription)"
+                question.questionText = L10n.Game.loadError(error.localizedDescription)
             }
         }
     }
@@ -171,7 +171,7 @@ final class QuizSessionViewModel: ObservableObject {
             switch activeMode {
             case .movies:
                 let localQ = localMovieQuestions[score.currentQuestionIndex]
-                qText = localQ.question
+                qText = L10n.Game.movieRatingQuestion
                 qAnswer = localQ.correctAnswer
                 qImage = UIImage(named: localQ.image) ?? UIImage()
                 currentCorrectName = ""
@@ -183,7 +183,7 @@ final class QuizSessionViewModel: ObservableObject {
                     showNextQuestionOrResults()
                     return
                 }
-                qText = finalQuestion.questionText
+                qText = L10n.Game.characterNameQuestion(finalQuestion.questionText)
                 qAnswer = finalQuestion.correctAnswer
                 currentCorrectName = finalQuestion.correctName
                 qImage = image
@@ -194,7 +194,10 @@ final class QuizSessionViewModel: ObservableObject {
             question.usesPosterFill = activeMode == .movies
             currentCorrectAnswer = qAnswer
             question.posterImage = qImage
-            score.counterText = "\(score.currentQuestionIndex + 1)/\(score.maxQuestions)"
+            score.counterText = QuizFormatters.scorePair(
+                correct: score.currentQuestionIndex + 1,
+                total: score.maxQuestions
+            )
             question.questionColor = .primary
             question.questionText = qText
             question.isLoading = false
@@ -286,8 +289,10 @@ final class QuizSessionViewModel: ObservableObject {
                 total: score.maxQuestions,
                 for: activeMode
             )
-            score.resultTitle = "Этот раунд окончен!"
-            score.resultText = "Ваш результат: \(score.correctAnswers)/\(score.maxQuestions)"
+            score.resultTitle = L10n.Game.roundOver
+            score.resultText = L10n.Game.yourResult(
+                QuizFormatters.scorePair(correct: score.correctAnswers, total: score.maxQuestions)
+            )
             question.posterBorderColor = .white
             score.showResult = true
         } else {

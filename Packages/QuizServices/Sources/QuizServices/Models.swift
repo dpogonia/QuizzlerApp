@@ -315,11 +315,10 @@ public final class QuizLogicEngine: QuizLogicProviding {
         usedQuestionNames.insert(candidateName)
         usedRMCharacterIDs.insert(subject.id)
         let statementIsTrue = (candidateName == subject.name)
-        let question = "Имя этого персонажа — \(candidateName.uppercased())?"
 
         return DynamicQuizQuestion(
             imageURL: subject.image,
-            questionText: question,
+            questionText: candidateName.uppercased(),
             correctAnswer: statementIsTrue,
             correctName: subject.name
         )
@@ -360,11 +359,10 @@ public final class QuizLogicEngine: QuizLogicProviding {
         usedQuestionNames.insert(candidateName)
         usedSPCharacterIDs.insert(subject.id)
         let statementIsTrue = (candidateName == subject.name)
-        let question = "Имя этого персонажа — \(candidateName.uppercased())?"
 
         return DynamicQuizQuestion(
             imageURL: "spwiki:\(subject.name)",
-            questionText: question,
+            questionText: candidateName.uppercased(),
             correctAnswer: statementIsTrue,
             correctName: subject.name
         )
@@ -405,11 +403,10 @@ public final class QuizLogicEngine: QuizLogicProviding {
         usedQuestionNames.insert(candidateName)
         usedBMCharacterIDs.insert(subject.pageid)
         let statementIsTrue = (candidateName == subject.name)
-        let question = "Имя этого персонажа — \(candidateName.uppercased())?"
 
         return DynamicQuizQuestion(
             imageURL: "bmwiki:\(subject.name)",
-            questionText: question,
+            questionText: candidateName.uppercased(),
             correctAnswer: statementIsTrue,
             correctName: subject.name
         )

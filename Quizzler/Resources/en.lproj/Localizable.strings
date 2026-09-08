@@ -1,0 +1,43 @@
+"start.settings" = "Settings";
+"start.settings_subtitle" = "Records, timer, theme";
+"start.loading" = "Loading...";
+"start.error_title" = "Error";
+"start.ok" = "OK";
+"start.load_failed" = "Couldn't load the data. Please try again.\n%@";
+"start.best_score" = "Best: %@ — %@";
+
+"mode.movies.title" = "IMDb Ratings";
+"mode.movies.subtitle" = "Guess the movie rating";
+"mode.rickAndMorty.title" = "Rick and Morty";
+"mode.rickAndMorty.subtitle" = "Wubba Lubba Dub-Dub";
+"mode.southPark.title" = "South Park";
+"mode.southPark.subtitle" = "Oh my God, they killed Kenny";
+"mode.bigMouth.title" = "Big Mouth";
+"mode.bigMouth.subtitle" = "Hormones and monsters";
+"mode.humanResources.title" = "Human Resources";
+"mode.humanResources.subtitle" = "Monster office";
+
+"game.yes" = "YES";
+"game.no" = "NO";
+"game.play_again" = "Play again";
+"game.back_to_menu" = "Back to modes";
+"game.round_over" = "This round is over!";
+"game.your_result" = "Your score: %@";
+"game.loading_question" = "Loading question…";
+"game.syncing" = "Syncing with the server…";
+"game.load_error" = "Couldn't load data: %@";
+"game.movie_rating_question" = "Is this movie rated higher than 6?";
+"game.character_name_question" = "Is this character’s name %@?";
+
+"settings.title" = "Settings";
+"settings.records" = "Records";
+"settings.timer" = "Timer";
+"settings.timer_hint" = "How many seconds before you lose";
+"settings.theme" = "Theme";
+"settings.theme_hint" = "Which side are you on";
+"settings.theme.light" = "Light";
+"settings.theme.dark" = "Dark";
+"settings.theme.system" = "System";
+"settings.best_score" = "Best score (%@): %@";
+
+"error.south_park_image" = "Couldn't find the character image.";

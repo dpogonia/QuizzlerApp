@@ -15,7 +15,10 @@ final class StartHeaderViewModel: ObservableObject {
 
     func refresh() {
         if let best = scoreStore.bestOverall() {
-            bestResultText = "Рекорд: \(best.mode.title) — \(best.score)/\(best.total)"
+            bestResultText = L10n.Start.bestScore(
+                best.mode.localizedTitle,
+                QuizFormatters.scorePair(correct: best.score, total: best.total)
+            )
         } else {
             bestResultText = ""
         }
@@ -83,7 +86,7 @@ final class ModeMenuViewModel: ObservableObject {
                 session = game
                 navigateToGame = true
             } catch {
-                errorMessage = "Не удалось загрузить данные. Попробуйте ещё раз.\n\(error.localizedDescription)"
+                errorMessage = L10n.Start.loadFailed(error.localizedDescription)
                 showError = true
             }
             isLoading = false

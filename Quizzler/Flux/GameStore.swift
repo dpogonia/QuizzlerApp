@@ -15,7 +15,7 @@ final class QuestionStore: ObservableObject {
 
 @MainActor
 final class TimerStore: ObservableObject {
-    @Published var timerText = "Вопрос:"
+    @Published var timerText = ""
     @Published var timerColor: Color = .primary
     @Published var remainingTime: TimeInterval = 0
 }

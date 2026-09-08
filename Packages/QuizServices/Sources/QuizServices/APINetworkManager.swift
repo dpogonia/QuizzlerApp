@@ -8,7 +8,7 @@ public enum QuizAPIError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .southParkImageNotFound:
-            return "Не удалось найти картинку персонажа."
+            return NSLocalizedString("error.south_park_image", comment: "")
         }
     }
 }

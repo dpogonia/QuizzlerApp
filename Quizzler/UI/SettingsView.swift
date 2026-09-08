@@ -27,13 +27,13 @@ private struct SettingsScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Рекорды")
+                Text(L10n.Settings.records)
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(Color.primary)
 
                 ForEach(GameMode.allCases, id: \.self) { mode in
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(mode.title)
+                        Text(mode.localizedTitle)
                             .font(.system(size: 17, weight: .semibold))
                             .foregroundStyle(Color.primary)
                         Text(viewModel.records.recordText(for: mode))
@@ -47,16 +47,16 @@ private struct SettingsScreen: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
 
-                SectionCard(title: "Таймер") {
+                SectionCard(title: L10n.Settings.timer) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("За сколько секунд ты готов проиграть")
+                        Text(L10n.Settings.timerHint)
                             .font(.system(size: 15, weight: .regular))
                             .foregroundStyle(Color.secondary)
 
                         HStack(spacing: 8) {
                             ForEach(viewModel.timer.availableDurations, id: \.self) { value in
                                 ChipButton(
-                                    title: "\(value)",
+                                    title: QuizFormatters.duration(value),
                                     isSelected: viewModel.timer.selectedDuration == value
                                 ) {
                                     viewModel.timer.selectDuration(value)
@@ -66,16 +66,16 @@ private struct SettingsScreen: View {
                     }
                 }
 
-                SectionCard(title: "Тема") {
+                SectionCard(title: L10n.Settings.theme) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("На чьей стороне ты")
+                        Text(L10n.Settings.themeHint)
                             .font(.system(size: 15, weight: .regular))
                             .foregroundStyle(Color.secondary)
 
                         HStack(spacing: 8) {
                             ForEach(Array(AppTheme.allCases), id: \.self) { theme in
                                 ChipButton(
-                                    title: theme.title,
+                                    title: theme.localizedTitle,
                                     isSelected: themeController.current == theme
                                 ) {
                                     themeController.select(theme)
@@ -89,7 +89,7 @@ private struct SettingsScreen: View {
             .padding(.vertical, 24)
         }
         .background(Color(.systemBackground))
-        .navigationTitle("Настройки")
+        .navigationTitle(L10n.Settings.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
     }

@@ -44,8 +44,8 @@ private struct StartScreen: View {
                 ForEach(viewModel.menu.modes, id: \.self) { mode in
                     ModeCardView(
                         symbolName: mode.symbolName,
-                        title: mode.title,
-                        subtitle: mode.description,
+                        title: mode.localizedTitle,
+                        subtitle: mode.localizedSubtitle,
                         isDimmed: viewModel.menu.isLoading,
                         showsSpinner: viewModel.menu.loadingMode == mode
                     ) {
@@ -55,8 +55,8 @@ private struct StartScreen: View {
 
                 ModeCardView(
                     symbolName: "gearshape",
-                    title: "Settings",
-                    subtitle: "Рекорды, таймер, тема",
+                    title: L10n.Start.settings,
+                    subtitle: L10n.Start.settingsSubtitle,
                     isDimmed: viewModel.menu.isLoading
                 ) {
                     showSettings = true
@@ -69,7 +69,7 @@ private struct StartScreen: View {
             if viewModel.menu.isLoading {
                 ProgressView()
                     .padding(.top, 24)
-                Text("Loading...")
+                Text(L10n.Start.loading)
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(Color.secondary)
                     .padding(.top, 8)
@@ -95,11 +95,11 @@ private struct StartScreen: View {
                 GameView(viewModel: session)
             }
         }
-        .alert("Ошибка", isPresented: Binding(
+        .alert(L10n.Start.errorTitle, isPresented: Binding(
             get: { viewModel.menu.showError },
             set: { viewModel.menu.showError = $0 }
         )) {
-            Button("OK", role: .cancel) {}
+            Button(L10n.Start.ok, role: .cancel) {}
         } message: {
             Text(viewModel.menu.errorMessage ?? "")
         }
