@@ -70,7 +70,7 @@ cd Quizzler-SUI
 open Quizzler.xcodeproj
 ```
 
-Схема **Quizzler**, Run. CocoaPods нет, пакеты подключены через SPM.
+Схема **Quizzler**, Run. Пакеты подключены через SPM.
 
 Если правишь строки в `Quizzler/Resources`, удобно иметь [SwiftGen](https://github.com/SwiftGen/SwiftGen) — он обновит `L10n`. Без него сборка тоже проходит, в репозитории уже лежит сгенерированный файл.
 
