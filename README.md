@@ -17,6 +17,7 @@ iOS-викторина на SwiftUI: смотришь на картинку, ж�
 <p align="center">
   <img src="Docs/game-big-mouth.png" width="230" hspace="8" alt="Игра, Big Mouth">
   <img src="Docs/game-human-resources.png" width="230" hspace="8" alt="Игра, Human Resources">
+  <img src="Docs/game-imdb.png" width="230" hspace="8" alt="Игра, рейтинг IMDb">
 </p>
 
 ## Что внутри
