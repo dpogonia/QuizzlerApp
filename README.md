@@ -82,7 +82,7 @@ open Quizzler.xcodeproj
 
 Контент сериалов приходит с [Wikipedia](https://en.wikipedia.org) / [Fandom](https://bigmouth.fandom.com) и публичных API: и имена, и фото. У IMDb наоборот — фильмы и постеры уже лежат в проекте, качать их не нужно.
 
-Само приложение тонкое. Общая инфраструктура — в `Packages/CoreServices` (сеть, файлы, UserDefaults). Логика квиза — в `QuizServices`. Кнопки и карточки — в `QuizUI`.
+В самом таргете в основном экраны и сборка зависимостей. Сеть, файлы и UserDefaults — в `Packages/CoreServices`. Логика квиза — в `QuizServices`. Кнопки и карточки — в `QuizUI`.
 
 ```text
 Quizzler/
