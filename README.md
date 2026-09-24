@@ -5,18 +5,18 @@ iOS-викторина на SwiftUI: смотришь на картинку, ж�
 Пять режимов. В **рейтинге IMDb** нужно угадать, выше или ниже порога оценка фильма. В Rick and Morty, South Park, Big Mouth и Human Resources — узнать персонажа. Раунд короткий, на 20 вопросов.
 
 <p align="center">
-  <img src="Docs/game-south-park-ok.png" width="230" hspace="8" alt="Игра, South Park">
   <img src="Docs/start.png" width="230" hspace="8" alt="Главный экран">
-  <img src="Docs/game-rick-and-morty.png" width="230" hspace="8" alt="Игра, Rick and Morty">
-</p>
-<p align="center">
-  <img src="Docs/game-south-park.png" width="230" hspace="8" alt="Игра, South Park">
-  <img src="Docs/game-big-mouth.png" width="230" hspace="8" alt="Игра, Big Mouth">
-  <img src="Docs/game-human-resources.png" width="230" hspace="8" alt="Игра, Human Resources">
-</p>
-<p align="center">
   <img src="Docs/settings-records.png" width="230" hspace="8" alt="Рекорды и сложность">
   <img src="Docs/settings-preferences.png" width="230" hspace="8" alt="Тема, звуки, вибрации, язык">
+</p>
+<p align="center">
+  <img src="Docs/game-south-park-ok.png" width="230" hspace="8" alt="Игра, South Park">
+  <img src="Docs/game-rick-and-morty.png" width="230" hspace="8" alt="Игра, Rick and Morty">
+  <img src="Docs/game-south-park.png" width="230" hspace="8" alt="Игра, South Park">
+</p>
+<p align="center">
+  <img src="Docs/game-big-mouth.png" width="230" hspace="8" alt="Игра, Big Mouth">
+  <img src="Docs/game-human-resources.png" width="230" hspace="8" alt="Игра, Human Resources">
 </p>
 
 ## Что внутри
