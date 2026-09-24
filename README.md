@@ -36,7 +36,7 @@ iOS-викторина на SwiftUI: смотришь на картинку, ж�
 - **Рейтинг IMDb** — около ста фильмов, на раунд случайно берутся 20. Постеры уже в проекте, в `Assets`, сеть для картинок не нужна. Вопрос строится вокруг настоящей оценки: «выше 8?» или «ниже 7?». Порог берётся из соседних целых к рейтингу. Сравнения с 10 не делаются: выше 10 на IMDb не бывает, а «меньше 10» почти всегда правда.
 - **Rick and Morty** — персонажи и фото с [rickandmortyapi.com](https://rickandmortyapi.com)
 - **South Park** — персонажи с [spapi.dev](https://spapi.dev), картинки качаются по API
-- **Big Mouth** и **Human Resources** — персонажи с Fandom / Wikipedia, фото тоже с API
+- **Big Mouth** и **Human Resources** — персонажи с [Fandom](https://bigmouth.fandom.com) / [Wikipedia](https://en.wikipedia.org), фото тоже с API [Fandom](https://bigmouth.fandom.com/api.php) / [Wikipedia](https://www.mediawiki.org/wiki/API:Main_page)
 
 ## Без сети
 
@@ -80,7 +80,7 @@ open Quizzler.xcodeproj
 
 Собрано на Swift и SwiftUI, пакеты через Swift Package Manager. Сеть — `URLSession`, модели — `Codable`, диск — `FileManager`, настройки и рекорды — `UserDefaults`. Экраны обновляются через Combine. Звук на AVFoundation, вибрации на Core Haptics.
 
-Контент сериалов приходит с Wikipedia / Fandom и публичных API: и имена, и фото. У IMDb наоборот — фильмы и постеры уже лежат в проекте, качать их не нужно.
+Контент сериалов приходит с [Wikipedia](https://en.wikipedia.org) / [Fandom](https://bigmouth.fandom.com) и публичных API: и имена, и фото. У IMDb наоборот — фильмы и постеры уже лежат в проекте, качать их не нужно.
 
 Само приложение тонкое. Общая инфраструктура — в `Packages/CoreServices` (сеть, файлы, UserDefaults). Логика квиза — в `QuizServices`. Кнопки и карточки — в `QuizUI`.
 
