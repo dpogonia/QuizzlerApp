@@ -24,10 +24,10 @@ public enum QuizFont {
     public static let screenTitle = Font.system(size: 20, weight: .semibold)
     public static let cardTitle = Font.system(size: 20, weight: .semibold)
     public static let question = Font.system(size: 20, weight: .bold)
+    public static let ratingReveal = Font.system(size: 30, weight: .bold)
     public static let header = Font.system(size: 22, weight: .bold)
     public static let answer = Font.system(size: 20, weight: .bold)
     public static let recordTitle = Font.system(size: 17, weight: .semibold)
-    public static let bestScore = Font.system(size: 16, weight: .medium)
     public static let body = Font.system(size: 15, weight: .regular)
     public static let bodySemibold = Font.system(size: 15, weight: .semibold)
     public static let caption = Font.system(size: 14, weight: .regular)
@@ -59,5 +59,6 @@ public enum SFSymbol {
     public static let smiling = "face.smiling"
     public static let people = "person.2"
     public static let gear = "gearshape"
+    public static let play = "play.fill"
     public static let back = "chevron.left"
 }

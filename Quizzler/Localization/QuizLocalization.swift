@@ -3,11 +3,14 @@ import QuizServices
 
 enum QuizFormatters {
     static func scorePair(correct: Int, total: Int) -> String {
-        "\(decimal.string(from: NSNumber(value: correct)) ?? "\(correct)")/\(decimal.string(from: NSNumber(value: total)) ?? "\(total)")"
+        decimal.locale = AppLocalization.locale
+        return "\(decimal.string(from: NSNumber(value: correct)) ?? "\(correct)")/\(decimal.string(from: NSNumber(value: total)) ?? "\(total)")"
     }
 
     static func duration(_ seconds: Int) -> String {
         let measurement = Measurement(value: Double(seconds), unit: UnitDuration.seconds)
+        durationFormatter.locale = AppLocalization.locale
+        durationFormatter.numberFormatter.locale = AppLocalization.locale
         return durationFormatter.string(from: measurement)
     }
 
@@ -56,6 +59,15 @@ extension AppTheme {
         case .light: return L10n.Settings.Theme.light
         case .dark: return L10n.Settings.Theme.dark
         case .system: return L10n.Settings.Theme.system
+        }
+    }
+}
+
+extension AppLanguage {
+    var localizedTitle: String {
+        switch self {
+        case .russian: return L10n.Settings.Language.russian
+        case .english: return L10n.Settings.Language.english
         }
     }
 }

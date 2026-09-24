@@ -21,13 +21,21 @@ public final class DynamicQuizService: DynamicQuizServing {
     public func prefetchCharactersIfNeeded(for mode: GameMode, into engine: QuizLogicProviding) async throws {
         switch mode {
         case .rickAndMorty:
-            let targetPage = Int.random(in: 1...42)
-            let characters = try await network.fetchRMCharacters(page: targetPage)
-            engine.inject(rm: characters)
+            do {
+                let targetPage = Int.random(in: 1...42)
+                let characters = try await network.fetchRMCharacters(page: targetPage)
+                engine.inject(rm: characters)
+            } catch {
+                engine.inject(rm: try await preloader.rmCharacters())
+            }
         case .southPark:
-            let targetPage = Int.random(in: 1...10)
-            let characters = try await network.fetchSPCharacters(page: targetPage)
-            engine.inject(sp: characters)
+            do {
+                let targetPage = Int.random(in: 1...10)
+                let characters = try await network.fetchSPCharacters(page: targetPage)
+                engine.inject(sp: characters)
+            } catch {
+                engine.inject(sp: try await preloader.spCharacters())
+            }
         case .bigMouth:
             let characters = try await preloader.bmCharacters()
             engine.inject(bm: characters)

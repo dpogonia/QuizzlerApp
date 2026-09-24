@@ -3,8 +3,18 @@ import Foundation
 public struct URLSessionNetworkService: NetworkServing {
     private let session: URLSession
 
-    public init(session: URLSession = .shared) {
+    public init(session: URLSession = URLSessionNetworkService.makeCachedSession()) {
         self.session = session
+    }
+
+    public static func makeCachedSession() -> URLSession {
+        let configuration = URLSessionConfiguration.default
+        configuration.urlCache = URLCache(
+            memoryCapacity: 20 * 1024 * 1024,
+            diskCapacity: 100 * 1024 * 1024,
+            diskPath: "QuizzlerURLCache"
+        )
+        return URLSession(configuration: configuration)
     }
 
     public func data(for request: URLRequest) async throws -> Data {

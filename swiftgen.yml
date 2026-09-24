@@ -8,3 +8,4 @@ strings:
       output: Strings+Generated.swift
       params:
         enumName: L10n
+        lookupFunction: AppLocalization.string(forKey:table:fallback:)

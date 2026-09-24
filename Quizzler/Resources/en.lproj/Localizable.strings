@@ -1,10 +1,16 @@
 "start.settings" = "Settings";
-"start.settings_subtitle" = "Records, timer, theme";
+"start.settings_subtitle" = "Records, difficulty, theme, sounds, vibrations, language";
+"start.continue_game" = "Continue";
+"start.continue_subtitle" = "%@ · %@";
+"start.resume_title" = "Unfinished quiz";
+"start.resume_message" = "You already have an unfinished quiz in this mode. Continue it or start a new one?";
+"start.resume_continue" = "Continue";
+"start.resume_new" = "Start new";
+"start.cancel" = "Cancel";
 "start.loading" = "Loading...";
 "start.error_title" = "Error";
 "start.ok" = "OK";
 "start.load_failed" = "Couldn't load the data. Please try again.\n%@";
-"start.best_score" = "Best: %@ — %@";
 
 "mode.movies.title" = "IMDb Ratings";
 "mode.movies.subtitle" = "Guess the movie rating";
@@ -26,18 +32,32 @@
 "game.loading_question" = "Loading question…";
 "game.syncing" = "Syncing with the server…";
 "game.load_error" = "Couldn't load data: %@";
-"game.movie_rating_question" = "Is this movie rated higher than 6?";
+"game.movie_rating_higher" = "Is this movie rated higher than %d?";
+"game.movie_rating_lower" = "Is this movie rated lower than %d?";
 "game.character_name_question" = "Is this character’s name %@?";
 
 "settings.title" = "Settings";
 "settings.records" = "Records";
-"settings.timer" = "Timer";
-"settings.timer_hint" = "How many seconds before you lose";
+"settings.timer" = "Difficulty";
+"settings.timer_hint" = "Choose how fast you're gonna lose";
+"settings.duration_chip" = "%ds";
 "settings.theme" = "Theme";
-"settings.theme_hint" = "Which side are you on";
+"settings.theme_hint" = "Which side are you on?";
 "settings.theme.light" = "Light";
 "settings.theme.dark" = "Dark";
 "settings.theme.system" = "System";
+"settings.haptics" = "Vibrations";
+"settings.haptics_hint" = "Feel the taps — and the last three seconds";
+"settings.haptics.on" = "On";
+"settings.haptics.off" = "Off";
+"settings.sounds" = "Sounds";
+"settings.sounds_hint" = "Clicks on taps and a loop during the round";
+"settings.sounds.on" = "On";
+"settings.sounds.off" = "Off";
+"settings.language" = "Language";
+"settings.language_hint" = "What language do you prefer?";
+"settings.language.russian" = "Russian";
+"settings.language.english" = "English";
 "settings.best_score" = "Best score (%@): %@";
 
 "error.south_park_image" = "Couldn't find the character image.";

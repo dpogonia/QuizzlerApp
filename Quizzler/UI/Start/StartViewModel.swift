@@ -1,29 +1,6 @@
 import Combine
 import QuizServices
 import SwiftUI
-import UIKit
-
-@MainActor
-final class StartHeaderViewModel: ObservableObject {
-    private let scoreStore: any BestScoreStoring
-
-    @Published var bestResultText = ""
-
-    init(scoreStore: any BestScoreStoring) {
-        self.scoreStore = scoreStore
-    }
-
-    func refresh() {
-        if let best = scoreStore.bestOverall() {
-            bestResultText = L10n.Start.bestScore(
-                best.mode.localizedTitle,
-                QuizFormatters.scorePair(correct: best.score, total: best.total)
-            )
-        } else {
-            bestResultText = ""
-        }
-    }
-}
 
 @MainActor
 final class ModeMenuViewModel: ObservableObject {
@@ -31,6 +8,8 @@ final class ModeMenuViewModel: ObservableObject {
     private let quizService: any DynamicQuizServing
     private let scoreStore: any BestScoreStoring
     private let timerSettings: any QuizTimerSettingsProviding
+    private let sessionStore: any QuizSessionPersisting
+    private let feedback: any FeedbackPlaying
 
     let modes: [GameMode] = [.movies, .rickAndMorty, .southPark, .bigMouth, .humanResources]
 
@@ -40,49 +19,83 @@ final class ModeMenuViewModel: ObservableObject {
     @Published var showError = false
     @Published var session: QuizSessionViewModel?
     @Published var navigateToGame = false
+    @Published var savedSession: QuizSessionSnapshot?
+    @Published var showResumePrompt = false
+    @Published var resumePromptMode: GameMode?
 
     init(
         preloader: any QuizPreloading,
         quizService: any DynamicQuizServing,
         scoreStore: any BestScoreStoring,
-        timerSettings: any QuizTimerSettingsProviding
+        timerSettings: any QuizTimerSettingsProviding,
+        sessionStore: any QuizSessionPersisting,
+        feedback: any FeedbackPlaying
     ) {
         self.preloader = preloader
         self.quizService = quizService
         self.scoreStore = scoreStore
         self.timerSettings = timerSettings
+        self.sessionStore = sessionStore
+        self.feedback = feedback
     }
 
-    func startPreload() {
-        preloader.startIfNeeded()
+    func startPreload() async {
+        await preloader.startIfNeeded()
+    }
+
+    func refreshSavedSession() async {
+        savedSession = await sessionStore.load()
+    }
+
+    func continueSavedSession() {
+        guard let snapshot = savedSession else { return }
+        feedback.playTap()
+        start(mode: snapshot.mode, snapshot: snapshot)
     }
 
     func select(_ mode: GameMode) {
+        feedback.playTap()
+        if let savedSession, savedSession.mode == mode {
+            resumePromptMode = mode
+            showResumePrompt = true
+            return
+        }
+        start(mode: mode, snapshot: nil)
+    }
+
+    func confirmResumeSavedSession() {
+        continueSavedSession()
+    }
+
+    func confirmStartNewSession() {
+        guard let mode = resumePromptMode else { return }
+        feedback.playTap()
+        start(mode: mode, snapshot: nil)
+    }
+
+    private func start(mode: GameMode, snapshot: QuizSessionSnapshot?) {
         guard !isLoading else { return }
         isLoading = true
         loadingMode = mode
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
         Task {
             do {
-                let game = QuizSessionViewModel(
-                    mode: mode,
-                    engine: QuizLogicEngine(),
-                    quizService: quizService,
-                    scoreStore: scoreStore,
-                    timerSettings: timerSettings
-                )
-                switch mode {
-                case .movies:
-                    break
-                case .rickAndMorty:
-                    game.configureWithRMCharacters(try await preloader.rmCharacters())
-                case .southPark:
-                    game.configureWithSPCharacters(try await preloader.spCharacters())
-                case .bigMouth:
-                    game.configureWithBMCharacters(try await preloader.bmCharacters())
-                case .humanResources:
-                    game.configureWithHRCharacters(try await preloader.bmCharacters())
+                let game = makeSession(mode: mode)
+                if let snapshot {
+                    game.prepareRestore(snapshot)
+                } else {
+                    switch mode {
+                    case .movies:
+                        break
+                    case .rickAndMorty:
+                        game.configureWithRMCharacters(try await preloader.rmCharacters())
+                    case .southPark:
+                        game.configureWithSPCharacters(try await preloader.spCharacters())
+                    case .bigMouth:
+                        game.configureWithBMCharacters(try await preloader.bmCharacters())
+                    case .humanResources:
+                        game.configureWithHRCharacters(try await preloader.bmCharacters())
+                    }
                 }
                 session = game
                 navigateToGame = true
@@ -94,11 +107,22 @@ final class ModeMenuViewModel: ObservableObject {
             loadingMode = nil
         }
     }
+
+    private func makeSession(mode: GameMode) -> QuizSessionViewModel {
+        QuizSessionViewModel(
+            mode: mode,
+            engine: QuizLogicEngine(),
+            quizService: quizService,
+            scoreStore: scoreStore,
+            timerSettings: timerSettings,
+            sessionStore: sessionStore,
+            feedback: feedback
+        )
+    }
 }
 
 @MainActor
 final class StartViewModel: ObservableObject {
-    let header: StartHeaderViewModel
     let menu: ModeMenuViewModel
 
     private var cancellables = Set<AnyCancellable>()
@@ -107,18 +131,20 @@ final class StartViewModel: ObservableObject {
         preloader: any QuizPreloading,
         quizService: any DynamicQuizServing,
         scoreStore: any BestScoreStoring,
-        timerSettings: any QuizTimerSettingsProviding
+        timerSettings: any QuizTimerSettingsProviding,
+        sessionStore: any QuizSessionPersisting,
+        feedback: any FeedbackPlaying
     ) {
-        self.header = StartHeaderViewModel(scoreStore: scoreStore)
         self.menu = ModeMenuViewModel(
             preloader: preloader,
             quizService: quizService,
             scoreStore: scoreStore,
-            timerSettings: timerSettings
+            timerSettings: timerSettings,
+            sessionStore: sessionStore,
+            feedback: feedback
         )
 
-        header.objectWillChange
-            .merge(with: menu.objectWillChange)
+        menu.objectWillChange
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
@@ -126,7 +152,9 @@ final class StartViewModel: ObservableObject {
     }
 
     func onAppear() {
-        menu.startPreload()
-        header.refresh()
+        Task {
+            await menu.startPreload()
+            await menu.refreshSavedSession()
+        }
     }
 }

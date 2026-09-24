@@ -1,18 +1,22 @@
 import Foundation
-import UIKit
 
-public protocol QuizPreloading: AnyObject {
-    func startIfNeeded()
-    func latestError() -> Error?
-    func retryFailedLoads()
+public protocol QuizPreloading: AnyObject, Sendable {
+    func startIfNeeded() async
+    func latestError() async -> Error?
+    func retryFailedLoads() async
     func rmCharacters() async throws -> [RMCharacter]
     func spCharacters() async throws -> [SPCharacter]
     func bmCharacters() async throws -> [BMCharacter]
 }
 
-public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
+public actor QuizPreloader: QuizPreloading {
+    private enum Limits {
+        static let pageConcurrency = 4
+        static let imageConcurrency = 8
+    }
+
     private let network: any QuizNetworking
-    private let errorLock = NSLock()
+    private let bankCache: any QuizBankCaching
 
     private var rmTask: Task<[RMCharacter], Error>?
     private var spTask: Task<[SPCharacter], Error>?
@@ -22,14 +26,13 @@ public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
     private var bmFailed = false
     private var storedError: Error?
 
-    public init(network: any QuizNetworking) {
+    public init(network: any QuizNetworking, bankCache: any QuizBankCaching) {
         self.network = network
+        self.bankCache = bankCache
     }
 
     public func latestError() -> Error? {
-        errorLock.lock()
-        defer { errorLock.unlock() }
-        return storedError
+        storedError
     }
 
     public func retryFailedLoads() {
@@ -45,42 +48,37 @@ public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
             bmTask = nil
             bmFailed = false
         }
-        errorLock.lock()
         storedError = nil
-        errorLock.unlock()
         startIfNeeded()
     }
 
     public func startIfNeeded() {
         if rmTask == nil {
-            rmTask = Task { [network] in
+            rmTask = Task {
                 do {
-                    return try await Self.loadRMCharactersForGame(network: network)
+                    return try await self.loadRMCharactersForGame()
                 } catch {
-                    rmFailed = true
-                    remember(error)
+                    await self.rememberFailure(error, bank: .rm)
                     throw error
                 }
             }
         }
         if spTask == nil {
-            spTask = Task { [network] in
+            spTask = Task {
                 do {
-                    return try await Self.loadSPCharactersForGame(network: network)
+                    return try await self.loadSPCharactersForGame()
                 } catch {
-                    spFailed = true
-                    remember(error)
+                    await self.rememberFailure(error, bank: .sp)
                     throw error
                 }
             }
         }
         if bmTask == nil {
-            bmTask = Task { [network] in
+            bmTask = Task {
                 do {
-                    return try await Self.loadBMCharactersForGame(network: network)
+                    return try await self.loadBMCharactersForGame()
                 } catch {
-                    bmFailed = true
-                    remember(error)
+                    await self.rememberFailure(error, bank: .bm)
                     throw error
                 }
             }
@@ -91,8 +89,8 @@ public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
         if let task = rmTask {
             return try await task.value
         }
-        let task = Task { [network] in
-            try await Self.loadRMCharactersForGame(network: network)
+        let task = Task {
+            try await self.loadRMCharactersForGame()
         }
         rmTask = task
         return try await task.value
@@ -102,8 +100,8 @@ public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
         if let task = spTask {
             return try await task.value
         }
-        let task = Task { [network] in
-            try await Self.loadSPCharactersForGame(network: network)
+        let task = Task {
+            try await self.loadSPCharactersForGame()
         }
         spTask = task
         return try await task.value
@@ -113,115 +111,166 @@ public final class QuizPreloader: QuizPreloading, @unchecked Sendable {
         if let task = bmTask {
             return try await task.value
         }
-        let task = Task { [network] in
-            try await Self.loadBMCharactersForGame(network: network)
+        let task = Task {
+            try await self.loadBMCharactersForGame()
         }
         bmTask = task
         return try await task.value
     }
 
-    private func remember(_ error: Error) {
-        errorLock.lock()
-        storedError = error
-        errorLock.unlock()
+    private enum Bank {
+        case rm
+        case sp
+        case bm
     }
 
-    private static func loadRMCharactersForGame(network: any QuizNetworking) async throws -> [RMCharacter] {
-        let rmPages = Array(1...42)
-        var allRMCharacters: [RMCharacter] = []
-        try await withThrowingTaskGroup(of: [RMCharacter].self) { group in
-            for page in rmPages {
-                group.addTask {
-                    try await network.fetchRMCharacters(page: page)
-                }
+    private func rememberFailure(_ error: Error, bank: Bank) {
+        storedError = error
+        switch bank {
+        case .rm: rmFailed = true
+        case .sp: spFailed = true
+        case .bm: bmFailed = true
+        }
+    }
+
+    private func loadRMCharactersForGame() async throws -> [RMCharacter] {
+        do {
+            let characters = try await fetchRMCharactersFromNetwork()
+            await bankCache.saveRM(characters)
+            return characters
+        } catch {
+            if let cached = await bankCache.loadRM(), !cached.isEmpty {
+                return cached
             }
-            for try await chars in group {
-                allRMCharacters.append(contentsOf: chars)
-            }
+            throw error
+        }
+    }
+
+    private func fetchRMCharactersFromNetwork() async throws -> [RMCharacter] {
+        let network = self.network
+        let allRMCharacters = try await fetchPages(Array(1...42)) { page in
+            try await network.fetchRMCharacters(page: page)
         }
         guard !allRMCharacters.isEmpty else { throw URLError(.badServerResponse) }
 
-        let shuffledRM = allRMCharacters.shuffled()
-        let candidateRM = Array(shuffledRM.prefix(80))
-        var readyRM: [RMCharacter] = []
-        await withTaskGroup(of: RMCharacter?.self) { group in
-            for character in candidateRM {
-                group.addTask {
-                    if let _ = try? await network.fetchImage(from: character.image) {
-                        return character
-                    }
-                    return nil
-                }
-            }
-            for await result in group {
-                if let character = result {
-                    readyRM.append(character)
-                }
-            }
+        let candidateRM = Array(allRMCharacters.shuffled().prefix(80))
+        let readyRM = await filterReady(candidateRM) { character in
+            character.image
         }
         return readyRM.count >= 20 ? readyRM : allRMCharacters
     }
 
-    private static func loadSPCharactersForGame(network: any QuizNetworking) async throws -> [SPCharacter] {
-        let pages = Array(1...10)
-        var allCharacters: [SPCharacter] = []
-        try await withThrowingTaskGroup(of: [SPCharacter].self) { group in
-            for page in pages {
-                group.addTask {
-                    try await network.fetchSPCharacters(page: page)
-                }
+    private func loadSPCharactersForGame() async throws -> [SPCharacter] {
+        do {
+            let characters = try await fetchSPCharactersFromNetwork()
+            await bankCache.saveSP(characters)
+            return characters
+        } catch {
+            if let cached = await bankCache.loadSP(), !cached.isEmpty {
+                return cached
             }
-            for try await chars in group {
-                allCharacters.append(contentsOf: chars)
-            }
+            throw error
+        }
+    }
+
+    private func fetchSPCharactersFromNetwork() async throws -> [SPCharacter] {
+        let network = self.network
+        let allCharacters = try await fetchPages(Array(1...10)) { page in
+            try await network.fetchSPCharacters(page: page)
         }
         guard !allCharacters.isEmpty else { throw URLError(.badServerResponse) }
 
-        let shuffledSP = allCharacters.shuffled()
-        let candidateSP = Array(shuffledSP.prefix(80))
-        var readySP: [SPCharacter] = []
-        await withTaskGroup(of: SPCharacter?.self) { group in
-            for character in candidateSP {
-                group.addTask {
-                    let urlString = "spwiki:\(character.name)"
-                    if let _ = try? await network.fetchImage(from: urlString) {
-                        return character
-                    }
-                    return nil
-                }
-            }
-            for await result in group {
-                if let character = result {
-                    readySP.append(character)
-                }
-            }
+        let candidateSP = Array(allCharacters.shuffled().prefix(80))
+        let readySP = await filterReady(candidateSP) { character in
+            "spwiki:\(character.name)"
         }
         return readySP.count >= 20 ? readySP : allCharacters
     }
 
-    private static func loadBMCharactersForGame(network: any QuizNetworking) async throws -> [BMCharacter] {
+    private func loadBMCharactersForGame() async throws -> [BMCharacter] {
+        do {
+            let characters = try await fetchBMCharactersFromNetwork()
+            await bankCache.saveBM(characters)
+            return characters
+        } catch {
+            if let cached = await bankCache.loadBM(), !cached.isEmpty {
+                return cached
+            }
+            throw error
+        }
+    }
+
+    private func fetchBMCharactersFromNetwork() async throws -> [BMCharacter] {
         let allCharacters = try await network.fetchBMCharacters()
         guard !allCharacters.isEmpty else { throw URLError(.badServerResponse) }
 
-        let shuffled = allCharacters.shuffled()
-        let candidate = Array(shuffled.prefix(200))
-        var ready: [BMCharacter] = []
-        await withTaskGroup(of: BMCharacter?.self) { group in
-            for character in candidate {
+        let candidate = Array(allCharacters.shuffled().prefix(200))
+        return await filterReady(candidate) { character in
+            "bmwiki:\(character.name)"
+        }
+    }
+
+    private func fetchPages<Character: Sendable>(
+        _ pages: [Int],
+        maxConcurrent: Int = Limits.pageConcurrency,
+        fetch: @escaping @Sendable (Int) async throws -> [Character]
+    ) async throws -> [Character] {
+        try await withThrowingTaskGroup(of: [Character].self) { group in
+            var iterator = pages.makeIterator()
+            var allCharacters: [Character] = []
+
+            func enqueueNext() {
+                guard let page = iterator.next() else { return }
                 group.addTask {
-                    let urlString = "bmwiki:\(character.name)"
-                    if let _ = try? await network.fetchImage(from: urlString) {
+                    try await fetch(page)
+                }
+            }
+
+            for _ in 0..<min(maxConcurrent, pages.count) {
+                enqueueNext()
+            }
+
+            while let pageCharacters = try await group.next() {
+                allCharacters.append(contentsOf: pageCharacters)
+                enqueueNext()
+            }
+
+            return allCharacters
+        }
+    }
+
+    private func filterReady<Character: Sendable>(
+        _ characters: [Character],
+        maxConcurrent: Int = Limits.imageConcurrency,
+        imageResource: @escaping @Sendable (Character) -> String
+    ) async -> [Character] {
+        let network = self.network
+        return await withTaskGroup(of: Character?.self) { group in
+            var iterator = characters.makeIterator()
+            var ready: [Character] = []
+
+            func enqueueNext() {
+                guard let character = iterator.next() else { return }
+                group.addTask {
+                    if let _ = try? await network.fetchImage(from: imageResource(character)) {
                         return character
                     }
                     return nil
                 }
             }
-            for await result in group {
+
+            for _ in 0..<min(maxConcurrent, characters.count) {
+                enqueueNext()
+            }
+
+            while let result = await group.next() {
                 if let character = result {
                     ready.append(character)
                 }
+                enqueueNext()
             }
+
+            return ready
         }
-        return ready
     }
 }

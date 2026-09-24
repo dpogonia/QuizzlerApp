@@ -4,7 +4,6 @@ import Foundation
 public protocol BestScoreStoring: AnyObject {
     func bestScore(for mode: GameMode) -> (score: Int, total: Int)?
     func updateBestScore(correct: Int, total: Int, for mode: GameMode)
-    func bestOverall() -> (mode: GameMode, score: Int, total: Int)?
 }
 
 public final class BestScoreStore: BestScoreStoring {
@@ -35,22 +34,6 @@ public final class BestScoreStore: BestScoreStoring {
         let timer = timerSettings.currentDuration
         storage.set(correct, forKey: bestScoreKey(for: mode, timer: timer))
         storage.set(total, forKey: bestTotalKey(for: mode, timer: timer))
-    }
-
-    public func bestOverall() -> (mode: GameMode, score: Int, total: Int)? {
-        var best: (mode: GameMode, score: Int, total: Int)?
-        for mode in GameMode.allCases {
-            if let value = bestScore(for: mode) {
-                if let currentBest = best {
-                    if value.score > currentBest.score {
-                        best = (mode, value.score, value.total)
-                    }
-                } else {
-                    best = (mode, value.score, value.total)
-                }
-            }
-        }
-        return best
     }
 
     private func bestScoreKey(for mode: GameMode, timer: Int) -> String {

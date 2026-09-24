@@ -1,10 +1,16 @@
 "start.settings" = "Настройки";
-"start.settings_subtitle" = "Рекорды, таймер, тема";
+"start.settings_subtitle" = "Рекорды, сложность, тема, звуки, вибрации, язык";
+"start.continue_game" = "Продолжить";
+"start.continue_subtitle" = "%@ · %@";
+"start.resume_title" = "Незаконченная игра";
+"start.resume_message" = "В этом режиме есть незаконченный квиз. Продолжить его или начать заново?";
+"start.resume_continue" = "Продолжить";
+"start.resume_new" = "Начать заново";
+"start.cancel" = "Отмена";
 "start.loading" = "Загрузка...";
 "start.error_title" = "Ошибка";
 "start.ok" = "OK";
 "start.load_failed" = "Не удалось загрузить данные. Попробуйте ещё раз.\n%@";
-"start.best_score" = "Рекорд: %@ — %@";
 
 "mode.movies.title" = "Рейтинг IMDb";
 "mode.movies.subtitle" = "Угадай рейтинг фильма";
@@ -26,18 +32,32 @@
 "game.loading_question" = "Загрузка вопроса…";
 "game.syncing" = "Синхронизация с сервером…";
 "game.load_error" = "Ошибка загрузки данных: %@";
-"game.movie_rating_question" = "Рейтинг этого фильма больше чем 6?";
+"game.movie_rating_higher" = "Рейтинг этого фильма больше чем %d?";
+"game.movie_rating_lower" = "Рейтинг этого фильма меньше чем %d?";
 "game.character_name_question" = "Имя этого персонажа — %@?";
 
 "settings.title" = "Настройки";
 "settings.records" = "Рекорды";
-"settings.timer" = "Таймер";
-"settings.timer_hint" = "За сколько секунд ты готов проиграть";
+"settings.timer" = "Сложность";
+"settings.timer_hint" = "За сколько секунд ты готов проиграть?";
+"settings.duration_chip" = "%d сек.";
 "settings.theme" = "Тема";
-"settings.theme_hint" = "На чьей стороне ты";
+"settings.theme_hint" = "На чьей стороне ты?";
 "settings.theme.light" = "Светлая";
 "settings.theme.dark" = "Тёмная";
 "settings.theme.system" = "Системная";
+"settings.haptics" = "Вибрации";
+"settings.haptics_hint" = "Отклик на кнопки и дрожь, когда осталось меньше трёх секунд";
+"settings.haptics.on" = "Вкл";
+"settings.haptics.off" = "Выкл";
+"settings.sounds" = "Звуки";
+"settings.sounds_hint" = "Клики на кнопках и музыка, пока идёт игра";
+"settings.sounds.on" = "Вкл";
+"settings.sounds.off" = "Выкл";
+"settings.language" = "Язык";
+"settings.language_hint" = "Какой язык вы предпочитаете?";
+"settings.language.russian" = "Русский";
+"settings.language.english" = "Английский";
 "settings.best_score" = "Лучший результат (%@): %@";
 
 "error.south_park_image" = "Не удалось найти картинку персонажа.";

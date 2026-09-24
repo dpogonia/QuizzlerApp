@@ -19,6 +19,8 @@ struct SettingsView: View {
 private struct SettingsScreen: View {
     @StateObject private var viewModel: SettingsViewModel
     @EnvironmentObject private var themeController: ThemeController
+    @EnvironmentObject private var languageController: LanguageController
+    @EnvironmentObject private var feedback: FeedbackController
 
     init(viewModel: SettingsViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -43,9 +45,10 @@ private struct SettingsScreen: View {
                         HStack(spacing: QuizSpacing.compact) {
                             ForEach(viewModel.timer.availableDurations, id: \.self) { value in
                                 ChipButton(
-                                    title: QuizFormatters.duration(value),
+                                    title: L10n.Settings.durationChip(value),
                                     isSelected: viewModel.timer.selectedDuration == value
                                 ) {
+                                    feedback.playSelection()
                                     viewModel.timer.selectDuration(value)
                                 }
                             }
@@ -63,7 +66,72 @@ private struct SettingsScreen: View {
                                     title: theme.localizedTitle,
                                     isSelected: themeController.current == theme
                                 ) {
+                                    feedback.playSelection()
                                     themeController.select(theme)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                SectionCard(title: L10n.Settings.sounds) {
+                    VStack(alignment: .leading, spacing: QuizSpacing.compact) {
+                        QuizHintText(L10n.Settings.soundsHint)
+
+                        HStack(spacing: QuizSpacing.compact) {
+                            ChipButton(
+                                title: L10n.Settings.Sounds.on,
+                                isSelected: feedback.sounds.isEnabled
+                            ) {
+                                feedback.haptics.playSelection()
+                                feedback.sounds.select(true)
+                            }
+                            ChipButton(
+                                title: L10n.Settings.Sounds.off,
+                                isSelected: !feedback.sounds.isEnabled
+                            ) {
+                                feedback.haptics.playSelection()
+                                feedback.sounds.select(false)
+                            }
+                        }
+                    }
+                }
+
+                SectionCard(title: L10n.Settings.haptics) {
+                    VStack(alignment: .leading, spacing: QuizSpacing.compact) {
+                        QuizHintText(L10n.Settings.hapticsHint)
+
+                        HStack(spacing: QuizSpacing.compact) {
+                            ChipButton(
+                                title: L10n.Settings.Haptics.on,
+                                isSelected: feedback.haptics.isEnabled
+                            ) {
+                                feedback.sounds.playSelection()
+                                feedback.haptics.select(true)
+                            }
+                            ChipButton(
+                                title: L10n.Settings.Haptics.off,
+                                isSelected: !feedback.haptics.isEnabled
+                            ) {
+                                feedback.sounds.playSelection()
+                                feedback.haptics.select(false)
+                            }
+                        }
+                    }
+                }
+
+                SectionCard(title: L10n.Settings.language) {
+                    VStack(alignment: .leading, spacing: QuizSpacing.compact) {
+                        QuizHintText(L10n.Settings.languageHint)
+
+                        HStack(spacing: QuizSpacing.compact) {
+                            ForEach(Array(AppLanguage.allCases), id: \.self) { language in
+                                ChipButton(
+                                    title: language.localizedTitle,
+                                    isSelected: languageController.current == language
+                                ) {
+                                    feedback.playSelection()
+                                    languageController.select(language)
                                 }
                             }
                         }

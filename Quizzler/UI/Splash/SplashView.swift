@@ -4,6 +4,7 @@ import SwiftUI
 
 struct SplashView: View {
     @EnvironmentObject private var environment: AppEnvironment
+    @EnvironmentObject private var feedback: FeedbackController
     var onFinish: () -> Void
 
     @State private var showError = false
@@ -20,10 +21,14 @@ struct SplashView: View {
         }
         .alert(L10n.Start.errorTitle, isPresented: $showError) {
             Button(L10n.Splash.retry) {
-                environment.preloader.retryFailedLoads()
-                Task { await runLaunchSequence() }
+                feedback.playTap()
+                Task {
+                    await environment.preloader.retryFailedLoads()
+                    await runLaunchSequence()
+                }
             }
             Button(L10n.Splash.continue, role: .cancel) {
+                feedback.playTap()
                 onFinish()
             }
         } message: {
@@ -32,9 +37,9 @@ struct SplashView: View {
     }
 
     private func runLaunchSequence() async {
-        environment.preloader.startIfNeeded()
+        await environment.preloader.startIfNeeded()
         try? await Task.sleep(for: .seconds(3))
-        if let error = environment.preloader.latestError() {
+        if let error = await environment.preloader.latestError() {
             errorText = L10n.Splash.preloadError(error.localizedDescription)
             showError = true
             return

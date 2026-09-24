@@ -12,6 +12,7 @@ final class QuestionStore: ObservableObject {
     @Published fileprivate(set) var isLoading = false
     @Published fileprivate(set) var buttonsEnabled = false
     @Published fileprivate(set) var usesPosterFill = false
+    @Published fileprivate(set) var usesEmphasizedQuestion = false
 }
 
 @MainActor
@@ -62,6 +63,7 @@ final class GameStore: ObservableObject {
             question.isLoading = false
             question.buttonsEnabled = false
             question.usesPosterFill = usesPosterFill
+            question.usesEmphasizedQuestion = false
             score.currentQuestionIndex = 0
             score.correctAnswers = 0
             score.maxQuestions = maxQuestions
@@ -82,6 +84,7 @@ final class GameStore: ObservableObject {
             question.isLoading = true
             question.posterImage = nil
             question.questionText = L10n.Game.syncing
+            question.usesEmphasizedQuestion = false
             score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
 
         case .syncFailed(let message):
@@ -91,6 +94,7 @@ final class GameStore: ObservableObject {
 
         case .beginQuestionLoad(let showSpinner):
             question.buttonsEnabled = false
+            question.usesEmphasizedQuestion = false
             if showSpinner {
                 question.isLoading = true
                 question.posterImage = nil
@@ -104,22 +108,43 @@ final class GameStore: ObservableObject {
             question.questionText = text
             question.isLoading = false
             question.buttonsEnabled = true
+            question.usesEmphasizedQuestion = false
             score.counterText = QuizFormatters.scorePair(
                 correct: score.currentQuestionIndex + 1,
                 total: score.maxQuestions
             )
 
+        case .restoreProgress(let currentQuestionIndex, let correctAnswers, let maxQuestions, let usesPosterFill):
+            question.usesPosterFill = usesPosterFill
+            question.questionColor = QuizColor.primaryText
+            question.posterBorderColor = QuizColor.posterBorder
+            question.isLoading = false
+            question.buttonsEnabled = false
+            question.usesEmphasizedQuestion = false
+            score.currentQuestionIndex = currentQuestionIndex
+            score.correctAnswers = correctAnswers
+            score.maxQuestions = maxQuestions
+            score.showResult = false
+            score.resultTitle = ""
+            score.resultText = ""
+            score.shouldDismiss = false
+            score.counterText = QuizFormatters.scorePair(
+                correct: currentQuestionIndex + 1,
+                total: maxQuestions
+            )
+
         case .lockAnswers:
             question.buttonsEnabled = false
 
-        case .revealAnswer(let isCorrect, let name):
+        case .revealAnswer(let isCorrect, let name, let emphasized):
             if isCorrect {
                 score.correctAnswers += 1
             }
             question.posterBorderColor = isCorrect ? QuizColor.success : QuizColor.danger
             if let name, !name.isEmpty {
                 question.questionColor = isCorrect ? QuizColor.success : QuizColor.danger
-                question.questionText = name.uppercased()
+                question.questionText = emphasized ? name : name.uppercased()
+                question.usesEmphasizedQuestion = emphasized
             }
 
         case .advanceQuestion:

@@ -1,4 +1,5 @@
 import CoreServices
+import CryptoKit
 import Foundation
 import UIKit
 
@@ -23,14 +24,17 @@ public protocol QuizNetworking: Sendable {
 public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
     private let network: any NetworkServing
     private let parser: any JSONParsing
+    private let imageStore: any FileStoring
     private let imageCache = NSCache<NSString, UIImage>()
 
     public init(
         network: any NetworkServing,
-        parser: any JSONParsing
+        parser: any JSONParsing,
+        imageStore: any FileStoring
     ) {
         self.network = network
         self.parser = parser
+        self.imageStore = imageStore
         imageCache.countLimit = 150
     }
 
@@ -69,15 +73,21 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
             return cachedImage
         }
 
+        if let data = await imageStore.read(fromRelativePath: imagePath(for: urlString)),
+           let image = UIImage(data: data) {
+            imageCache.setObject(image, forKey: cacheKey)
+            return image
+        }
+
         if urlString.lowercased().hasPrefix("spwiki:") {
             let name = String(urlString.dropFirst("spwiki:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
             do {
                 let image = try await fetchSouthParkCharacterImage(name: name)
-                imageCache.setObject(image, forKey: cacheKey)
+                await remember(image, for: urlString)
                 return image
             } catch {
                 let image = makeSouthParkFallbackImage()
-                imageCache.setObject(image, forKey: cacheKey)
+                await remember(image, for: urlString)
                 return image
             }
         }
@@ -85,7 +95,7 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         if urlString.lowercased().hasPrefix("bmwiki:") {
             let name = String(urlString.dropFirst("bmwiki:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
             let image = try await fetchBigMouthCharacterImage(name: name)
-            imageCache.setObject(image, forKey: cacheKey)
+            await remember(image, for: urlString)
             return image
         }
 
@@ -93,8 +103,21 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         let data = try await network.data(from: url)
         guard let image = UIImage(data: data) else { throw URLError(.cannotDecodeRawData) }
 
-        imageCache.setObject(image, forKey: cacheKey)
+        await remember(image, for: urlString)
         return image
+    }
+
+    private func remember(_ image: UIImage, for urlString: String) async {
+        imageCache.setObject(image, forKey: NSString(string: urlString))
+        if let data = image.jpegData(compressionQuality: 0.85) ?? image.pngData() {
+            try? await imageStore.write(data, toRelativePath: imagePath(for: urlString))
+        }
+    }
+
+    private func imagePath(for urlString: String) -> String {
+        let digest = SHA256.hash(data: Data(urlString.utf8))
+        let hex = digest.map { String(format: "%02x", $0) }.joined()
+        return "images/\(hex).jpg"
     }
 
     private func fetchJSON<T: Decodable>(urlString: String) async throws -> T {

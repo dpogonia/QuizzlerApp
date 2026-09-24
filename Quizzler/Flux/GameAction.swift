@@ -8,8 +8,14 @@ enum GameAction {
     case syncFailed(String)
     case beginQuestionLoad(showSpinner: Bool)
     case presentQuestion(image: UIImage, text: String, usesPosterFill: Bool)
+    case restoreProgress(
+        currentQuestionIndex: Int,
+        correctAnswers: Int,
+        maxQuestions: Int,
+        usesPosterFill: Bool
+    )
     case lockAnswers
-    case revealAnswer(isCorrect: Bool, name: String?)
+    case revealAnswer(isCorrect: Bool, name: String?, emphasized: Bool)
     case advanceQuestion
     case finishRound(title: String, text: String)
     case resetPosterBorder

@@ -4,6 +4,7 @@ import SwiftUI
 
 struct StartView: View {
     @EnvironmentObject private var environment: AppEnvironment
+    @EnvironmentObject private var feedback: FeedbackController
 
     var body: some View {
         StartScreen(
@@ -11,7 +12,9 @@ struct StartView: View {
                 preloader: environment.preloader,
                 quizService: environment.quizService,
                 scoreStore: environment.scoreStore,
-                timerSettings: environment.timerSettings
+                timerSettings: environment.timerSettings,
+                sessionStore: environment.sessionStore,
+                feedback: feedback
             )
         )
     }
@@ -20,54 +23,70 @@ struct StartView: View {
 private struct StartScreen: View {
     @StateObject private var viewModel: StartViewModel
     @State private var showSettings = false
+    @EnvironmentObject private var languageController: LanguageController
+    @EnvironmentObject private var feedback: FeedbackController
 
     init(viewModel: StartViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            QuizHeroIcon(systemName: SFSymbol.popcorn, size: 88)
-                .frame(width: 104, height: 104)
-                .padding(.top, 24)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                QuizHeroIcon(systemName: SFSymbol.popcorn, size: 88)
+                    .frame(width: 104, height: 104)
+                    .padding(.top, 24)
 
-            Text(viewModel.header.bestResultText)
-                .font(QuizFont.bestScore)
-                .foregroundStyle(QuizColor.secondaryText)
-                .frame(maxWidth: .infinity, minHeight: 22, alignment: .leading)
-                .padding(.horizontal, QuizSpacing.screen)
-                .padding(.top, QuizSpacing.compact)
+                VStack(spacing: QuizSpacing.stack) {
+                    if let savedSession = viewModel.menu.savedSession {
+                        ModeCardView(
+                            symbolName: SFSymbol.play,
+                            title: L10n.Start.continueGame,
+                            subtitle: L10n.Start.continueSubtitle(
+                                savedSession.mode.localizedTitle,
+                                QuizFormatters.scorePair(
+                                    correct: savedSession.currentQuestionIndex + 1,
+                                    total: savedSession.maxQuestions
+                                )
+                            ),
+                            isDimmed: viewModel.menu.isLoading,
+                            showsSpinner: viewModel.menu.loadingMode == savedSession.mode
+                        ) {
+                            viewModel.menu.continueSavedSession()
+                        }
+                    }
 
-            VStack(spacing: QuizSpacing.stack) {
-                ForEach(viewModel.menu.modes, id: \.self) { mode in
+                    ForEach(viewModel.menu.modes, id: \.self) { mode in
+                        ModeCardView(
+                            symbolName: mode.symbolName,
+                            title: mode.localizedTitle,
+                            subtitle: mode.localizedSubtitle,
+                            isDimmed: viewModel.menu.isLoading,
+                            showsSpinner: viewModel.menu.loadingMode == mode
+                        ) {
+                            viewModel.menu.select(mode)
+                        }
+                    }
+
                     ModeCardView(
-                        symbolName: mode.symbolName,
-                        title: mode.localizedTitle,
-                        subtitle: mode.localizedSubtitle,
-                        isDimmed: viewModel.menu.isLoading,
-                        showsSpinner: viewModel.menu.loadingMode == mode
+                        symbolName: SFSymbol.gear,
+                        title: L10n.Start.settings,
+                        subtitle: L10n.Start.settingsSubtitle,
+                        isDimmed: viewModel.menu.isLoading
                     ) {
-                        viewModel.menu.select(mode)
+                        feedback.playTap()
+                        showSettings = true
                     }
                 }
+                .padding(.horizontal, QuizSpacing.screen)
+                .padding(.top, 24)
+                .allowsHitTesting(!viewModel.menu.isLoading)
 
-                ModeCardView(
-                    symbolName: SFSymbol.gear,
-                    title: L10n.Start.settings,
-                    subtitle: L10n.Start.settingsSubtitle,
-                    isDimmed: viewModel.menu.isLoading
-                ) {
-                    showSettings = true
-                }
+                QuizLoadingStatus(text: L10n.Start.loading)
+                    .opacity(viewModel.menu.isLoading ? 1 : 0)
+                    .padding(.bottom, 24)
             }
-            .padding(.horizontal, QuizSpacing.screen)
-            .padding(.top, 24)
-            .allowsHitTesting(!viewModel.menu.isLoading)
-
-            QuizLoadingStatus(text: L10n.Start.loading)
-                .opacity(viewModel.menu.isLoading ? 1 : 0)
-
-            Spacer(minLength: 0)
+            .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(QuizColor.screenBackground)
@@ -75,6 +94,11 @@ private struct StartScreen: View {
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             viewModel.onAppear()
+        }
+        .onChange(of: viewModel.menu.navigateToGame) { _, isPresented in
+            if !isPresented {
+                Task { await viewModel.menu.refreshSavedSession() }
+            }
         }
         .navigationDestination(isPresented: $showSettings) {
             SettingsView()
@@ -91,9 +115,27 @@ private struct StartScreen: View {
             get: { viewModel.menu.showError },
             set: { viewModel.menu.showError = $0 }
         )) {
-            Button(L10n.Start.ok, role: .cancel) {}
+            Button(L10n.Start.ok, role: .cancel) {
+                feedback.playTap()
+            }
         } message: {
             Text(viewModel.menu.errorMessage ?? "")
+        }
+        .alert(L10n.Start.resumeTitle, isPresented: Binding(
+            get: { viewModel.menu.showResumePrompt },
+            set: { viewModel.menu.showResumePrompt = $0 }
+        )) {
+            Button(L10n.Start.resumeContinue) {
+                viewModel.menu.confirmResumeSavedSession()
+            }
+            Button(L10n.Start.resumeNew) {
+                viewModel.menu.confirmStartNewSession()
+            }
+            Button(L10n.Start.cancel, role: .cancel) {
+                feedback.playTap()
+            }
+        } message: {
+            Text(L10n.Start.resumeMessage)
         }
     }
 }

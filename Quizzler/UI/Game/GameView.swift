@@ -3,7 +3,9 @@ import SwiftUI
 
 struct GameView: View {
     @ObservedObject var viewModel: QuizSessionViewModel
+    @EnvironmentObject private var feedback: FeedbackController
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(spacing: QuizSpacing.stack) {
@@ -21,7 +23,7 @@ struct GameView: View {
             .layoutPriority(0)
 
             Text(viewModel.question.questionText)
-                .font(QuizFont.question)
+                .font(viewModel.question.usesEmphasizedQuestion ? QuizFont.ratingReveal : QuizFont.question)
                 .foregroundStyle(viewModel.question.questionColor)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
@@ -54,9 +56,22 @@ struct GameView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             viewModel.startIfNeeded()
+            feedback.startGameMusic()
         }
         .onDisappear {
+            feedback.stopGameMusic()
             viewModel.stop()
+            Task { await viewModel.persistSession() }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                feedback.startGameMusic()
+            } else {
+                feedback.pauseGameMusic()
+            }
+            if phase == .inactive || phase == .background {
+                Task { await viewModel.persistSession() }
+            }
         }
         .onChange(of: viewModel.score.shouldDismiss) { _, shouldDismiss in
             if shouldDismiss {

@@ -10,7 +10,11 @@ final class AppEnvironment: ObservableObject {
     let scoreStore: any BestScoreStoring
     let timerSettings: any QuizTimerSettingsProviding
     let quizService: any DynamicQuizServing
+    let sessionStore: any QuizSessionPersisting
     let themeSettings: any ThemeSettingsProviding
+    let languageSettings: any LanguageSettingsProviding
+    let hapticSettings: any HapticSettingsProviding
+    let soundSettings: any SoundSettingsProviding
 
     init(locator: ServiceLocator) {
         self.locator = locator
@@ -18,6 +22,10 @@ final class AppEnvironment: ObservableObject {
         self.scoreStore = locator.resolve()
         self.timerSettings = locator.resolve()
         self.quizService = locator.resolve()
+        self.sessionStore = locator.resolve()
         self.themeSettings = locator.resolve()
+        self.languageSettings = locator.resolve()
+        self.hapticSettings = locator.resolve()
+        self.soundSettings = locator.resolve()
     }
 }
