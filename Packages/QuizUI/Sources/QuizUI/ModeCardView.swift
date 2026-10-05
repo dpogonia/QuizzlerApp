@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct ModeCardView: View { // карточка режима / «Продолжить» / настройки. тексты приходят снаружи
+public struct ModeCardView: View {
     let symbolName: String
     let title: String
     let subtitle: String
@@ -61,9 +61,9 @@ public struct ModeCardView: View { // карточка режима / «Прод
                         .controlSize(.regular)
                 }
             }
-            .opacity(isDimmed ? 0.6 : 1) // другой режим грузится — карточки тусклые
+            .opacity(isDimmed ? 0.6 : 1)
         }
         .buttonStyle(.plain)
-        .disabled(isDimmed && !showsSpinner) // крутится эта карточка — её ещё можно «видеть», остальные не жмутся
+        .disabled(isDimmed && !showsSpinner)
     }
 }

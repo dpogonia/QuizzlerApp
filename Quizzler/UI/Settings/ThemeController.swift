@@ -9,7 +9,6 @@ import Combine
 import QuizServices
 import SwiftUI
 
-// Тема на всё приложение. QuizzlerApp читает colorScheme. Пишем и в UserDefaults через ThemeSettingsService.
 @MainActor
 final class ThemeController: ObservableObject {
     private let themeSettings: any ThemeSettingsProviding
@@ -21,7 +20,7 @@ final class ThemeController: ObservableObject {
         self.current = themeSettings.current
     }
 
-    var colorScheme: ColorScheme? { // nil = системная, SwiftUI сам решит светлая/тёмная
+    var colorScheme: ColorScheme? {
         switch current {
         case .light: return .light
         case .dark: return .dark

@@ -7,10 +7,10 @@
 
 import Foundation
 
-public final class UserDefaultsStorage: KeyValueStoring, @unchecked Sendable { // обёртка, чтобы сервисы не импортировали UserDefaults напрямую
+public final class UserDefaultsStorage: KeyValueStoring, @unchecked Sendable {
     private let defaults: UserDefaults
 
-    public init(defaults: UserDefaults = .standard) { // .standard — обычные настройки приложения
+    public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
     }
 
@@ -18,7 +18,7 @@ public final class UserDefaultsStorage: KeyValueStoring, @unchecked Sendable { /
         defaults.set(value, forKey: key)
     }
 
-    public func integer(forKey key: String) -> Int { // нет ключа → 0, это системное поведение UserDefaults
+    public func integer(forKey key: String) -> Int {
         defaults.integer(forKey: key)
     }
 

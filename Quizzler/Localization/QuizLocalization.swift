@@ -8,8 +8,7 @@
 import Foundation
 import QuizServices
 
-// удобства вокруг переводов, не сами фразы.
-enum QuizFormatters { // числа как в выбранной локали: 3/20, «5 с» / «5s»
+enum QuizFormatters {
     static func scorePair(correct: Int, total: Int) -> String {
         decimal.locale = AppLocalization.locale
         return "\(decimal.string(from: NSNumber(value: correct)) ?? "\(correct)")/\(decimal.string(from: NSNumber(value: total)) ?? "\(total)")"
@@ -39,7 +38,7 @@ enum QuizFormatters { // числа как в выбранной локали: 3
     }()
 }
 
-extension GameMode { // расширения GameMode / AppTheme / AppLanguage — заголовок карточки режима, «Светлая», «Русский» через L10n, чтобы в меню не копировать switch по строкам.
+extension GameMode {
 
     var localizedTitle: String {
         switch self {

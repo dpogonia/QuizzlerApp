@@ -8,15 +8,15 @@
 
 import PackageDescription
 
-let package = Package( // сеть, диск, JSON, локатор. никого не зависит
+let package = Package(
     name: "CoreServices",
     platforms: [
         .iOS(.v17)
     ],
     products: [
-        .library(name: "CoreServices", targets: ["CoreServices"]) // то, что линкует приложение и QuizServices
+        .library(name: "CoreServices", targets: ["CoreServices"])
     ],
     targets: [
-        .target(name: "CoreServices") // исходники в Sources/CoreServices
+        .target(name: "CoreServices")
     ]
 )

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public protocol DynamicQuizServing { // вопрос раунда: персонаж из движка + скачанная картинка
+public protocol DynamicQuizServing {
     func prefetchCharactersIfNeeded(for mode: GameMode, into engine: QuizLogicProviding) async throws
     func makeDynamicQuestion(using engine: QuizLogicProviding) async -> (DynamicQuizQuestion, UIImage)?
 }
@@ -25,7 +25,7 @@ public final class DynamicQuizService: DynamicQuizServing {
         self.preloader = preloader
     }
 
-    public func prefetchCharactersIfNeeded(for mode: GameMode, into engine: QuizLogicProviding) async throws { // свежая страница API, если нет — то что предзагрузчик уже держит
+    public func prefetchCharactersIfNeeded(for mode: GameMode, into engine: QuizLogicProviding) async throws {
         switch mode {
         case .rickAndMorty:
             do {
@@ -33,7 +33,7 @@ public final class DynamicQuizService: DynamicQuizServing {
                 let characters = try await network.fetchRMCharacters(page: targetPage)
                 engine.inject(rm: characters)
             } catch {
-                engine.inject(rm: try await preloader.rmCharacters()) // офлайн / ошибка страницы — колода со сплэша
+                engine.inject(rm: try await preloader.rmCharacters())
             }
         case .southPark:
             do {
@@ -48,7 +48,7 @@ public final class DynamicQuizService: DynamicQuizServing {
             engine.inject(bm: characters)
         case .humanResources:
             let characters = try await preloader.bmCharacters()
-            engine.inject(hr: characters) // тот же список Fandom, движок ставит режим HR
+            engine.inject(hr: characters)
         }
     }
 
@@ -56,7 +56,7 @@ public final class DynamicQuizService: DynamicQuizServing {
         var dynamicQuestion: DynamicQuizQuestion?
         var loadedImage: UIImage?
 
-        for _ in 0..<12 { // до 12 попыток: движок дал имя, картинка не скачалась — берём другого
+        for _ in 0..<12 {
             guard let candidate = engine.generateChallenge() else { break }
             if let image = try? await network.fetchImage(from: candidate.imageURL) {
                 dynamicQuestion = candidate

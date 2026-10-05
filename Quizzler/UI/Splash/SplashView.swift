@@ -9,9 +9,8 @@ import QuizServices
 import QuizUI
 import SwiftUI
 
-// заставка + предзагрузка банков. Ждёт preloader, минимум ~3 секунды.
 struct SplashView: View {
-    // Экран не создаёт AppEnvironment и FeedbackController. Он только говорит: они должны уже висеть на дереве View. Кладёт их QuizzlerApp при старте.
+
     @EnvironmentObject private var environment: AppEnvironment
     @EnvironmentObject private var feedback: FeedbackController
     var onFinish: () -> Void

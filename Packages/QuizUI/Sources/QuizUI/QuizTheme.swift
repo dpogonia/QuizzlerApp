@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-// Тут разные константы
-public enum QuizColor { // системные цвета, чтобы светлая/тёмная тема сами переключались
+public enum QuizColor {
     public static let screenBackground = Color(.systemBackground)
     public static let cardBackground = Color(.secondarySystemBackground)
     public static let chipIdle = Color(.tertiarySystemBackground)
@@ -26,7 +25,7 @@ public enum QuizColor { // системные цвета, чтобы светл�
     public static let warning = Color(.systemYellow)
 }
 
-public enum QuizFont { // размеры с экранов, не Dynamic Type — вёрстка фиксированная
+public enum QuizFont {
     public static let heroIcon = Font.system(size: 88, weight: .bold)
     public static let splashIcon = Font.system(size: 125, weight: .bold)
     public static let screenTitle = Font.system(size: 20, weight: .semibold)
@@ -42,7 +41,7 @@ public enum QuizFont { // размеры с экранов, не Dynamic Type �
     public static let backSymbol = Font.system(size: 20, weight: .semibold)
 }
 
-public enum QuizRadius { // скругления карточек / чипов / рамки постера
+public enum QuizRadius {
     public static let card: CGFloat = 16
     public static let row: CGFloat = 12
     public static let chip: CGFloat = 10
@@ -50,7 +49,7 @@ public enum QuizRadius { // скругления карточек / чипов /
     public static let answer: CGFloat = 20
 }
 
-public enum QuizSpacing { // отступы экрана, не магические 16 по View
+public enum QuizSpacing {
     public static let screen: CGFloat = 20
     public static let stack: CGFloat = 16
     public static let section: CGFloat = 12
@@ -58,7 +57,7 @@ public enum QuizSpacing { // отступы экрана, не магическ�
     public static let tight: CGFloat = 4
 }
 
-public enum SFSymbol { // имена SF Symbols одним местом, чтобы не опечатать "popcorn.fill"
+public enum SFSymbol {
     public static let popcorn = "popcorn.fill"
     public static let atom = "atom"
     public static let mountain = "mountain.2"

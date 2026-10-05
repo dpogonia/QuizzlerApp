@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-public struct SectionCard<Content: View>: View { // блок настроек: заголовок + серая карточка с любым контентом
+public struct SectionCard<Content: View>: View {
     let title: String?
     @ViewBuilder let content: Content
 
-    public init(title: String? = nil, @ViewBuilder content: () -> Content) { // content — чипы или что угодно
+    public init(title: String? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
         self.content = content()
     }

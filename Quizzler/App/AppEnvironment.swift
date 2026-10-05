@@ -10,22 +10,21 @@ import CoreServices
 import QuizServices
 import SwiftUI
 
-// Раскладываем сервисы по именам, чтобы экраны не звали ServiceLocator сами.
-@MainActor // Меняем UI только на главном потоке
-final class AppEnvironment: ObservableObject { // ObservableObject чтобы положить в SwiftUI через .environmentObject, но без Published тк это не UI
+@MainActor
+final class AppEnvironment: ObservableObject {
     let locator: ServiceLocator
-    // Ярлыки из register. Тип any Протокол значит "кто умеет вот это", класс снаружи не важен
-    let preloader: any QuizPreloading // сплэш качает банки Rick / SP / Big Mouth
-    let scoreStore: any BestScoreStoring // рекорды в настройках
-    let timerSettings: any QuizTimerSettingsProviding // сложность 1–10 сек
-    let quizService: any DynamicQuizServing // собрать вопрос и картинку в раунде
-    let sessionStore: any QuizSessionPersisting // "Продолжить": session.json
-    let themeSettings: any ThemeSettingsProviding // светлая / тёмная / системная тема
-    let languageSettings: any LanguageSettingsProviding // ru / en
-    let hapticSettings: any HapticSettingsProviding // вибрация вкл/выкл
-    let soundSettings: any SoundSettingsProviding // звук вкл/выкл
 
-    // QuizzlerApp → bootstrap() → AppEnvironment(locator:) → RootView получает environment → сплэш берёт preloader, меню — sessionStore и quizService.
+    let preloader: any QuizPreloading
+    let scoreStore: any BestScoreStoring
+    let timerSettings: any QuizTimerSettingsProviding
+    let quizService: any DynamicQuizServing
+    let sessionStore: any QuizSessionPersisting
+    let themeSettings: any ThemeSettingsProviding
+    let languageSettings: any LanguageSettingsProviding
+    let hapticSettings: any HapticSettingsProviding
+    let soundSettings: any SoundSettingsProviding
+
+
     init(locator: ServiceLocator) {
         self.locator = locator
         self.preloader = locator.resolve()

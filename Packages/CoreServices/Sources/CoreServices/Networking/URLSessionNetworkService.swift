@@ -7,10 +7,10 @@
 
 import Foundation
 
-public struct URLSessionNetworkService: NetworkServing { // URLSession + свой URLCache на картинки/json
+public struct URLSessionNetworkService: NetworkServing {
     private let session: URLSession
 
-    public init(session: URLSession = URLSessionNetworkService.makeCachedSession()) { // по умолчанию сессия с кэшем 20 МБ RAM / 100 МБ диск
+    public init(session: URLSession = URLSessionNetworkService.makeCachedSession()) {
         self.session = session
     }
 
@@ -19,7 +19,7 @@ public struct URLSessionNetworkService: NetworkServing { // URLSession + сво�
         configuration.urlCache = URLCache(
             memoryCapacity: 20 * 1024 * 1024,
             diskCapacity: 100 * 1024 * 1024,
-            diskPath: "QuizzlerURLCache" // папка кэша URLSession, отдельно от нашего DiskFileStore
+            diskPath: "QuizzlerURLCache"
         )
         return URLSession(configuration: configuration)
     }
@@ -30,7 +30,7 @@ public struct URLSessionNetworkService: NetworkServing { // URLSession + сво�
             throw NetworkError.invalidResponse
         }
         guard (200..<300).contains(http.statusCode) else {
-            throw NetworkError.statusCode(http.statusCode) // 404 картинки не глотаем как успех
+            throw NetworkError.statusCode(http.statusCode)
         }
         return data
     }

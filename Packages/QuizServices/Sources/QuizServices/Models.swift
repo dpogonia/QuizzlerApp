@@ -9,14 +9,13 @@ import CoreServices
 import Foundation
 import UIKit
 
-// MARK: - Game Mode
-public enum GameMode: String, CaseIterable, Codable, Sendable { // четыре режима меню. Codable — в session.json
+public enum GameMode: String, CaseIterable, Codable, Sendable {
     case rickAndMorty
     case southPark
     case bigMouth
     case humanResources
 
-    public var title: String { // запасные названия; на экране обычно L10n
+    public var title: String {
         switch self {
         case .rickAndMorty: return "Rick and Morty"
         case .southPark: return "South Park"
@@ -39,8 +38,7 @@ public enum GameMode: String, CaseIterable, Codable, Sendable { // четыре 
     }
 }
 
-// MARK: - App Theme
-public enum AppTheme: String, CaseIterable, Sendable { // UserDefaults: light / dark / system
+public enum AppTheme: String, CaseIterable, Sendable {
     case light
     case dark
     case system
@@ -54,7 +52,7 @@ public enum AppTheme: String, CaseIterable, Sendable { // UserDefaults: light / 
     }
 }
 
-public enum AppLanguage: String, CaseIterable, Sendable { // сырые "ru"/"en" = имена папок lproj
+public enum AppLanguage: String, CaseIterable, Sendable {
     case russian = "ru"
     case english = "en"
 
@@ -70,7 +68,7 @@ public enum AppLanguage: String, CaseIterable, Sendable { // сырые "ru"/"en
     }
 }
 
-public struct QuizVM { // не используется экраном сейчас, осталось от ранней вёрстки
+public struct QuizVM {
     public let image: UIImage
     public let question: String
     public let questionIndicator: String
@@ -83,17 +81,15 @@ public struct QuizResultsVM {
     public let buttonText: String
 }
 
-// MARK: - Dynamic questions (API-based)
-public struct DynamicQuizQuestion: Codable, Sendable { // то, что движок отдаёт на один кадр
+public struct DynamicQuizQuestion: Codable, Sendable {
     public let imageURL: String
     public let questionText: String
-    /// Если `true` — правильный ответ "Да", иначе "Нет".
+
     public let correctAnswer: Bool
-    /// Настоящее имя персонажа (для показа после ответа).
+
     public let correctName: String
 }
 
-// MARK: - Rick and Morty API Models
 public struct RMAPIResponse: Codable {
     public let info: RMAPIInfo
     public let results: [RMCharacter]
@@ -103,7 +99,7 @@ public struct RMAPIInfo: Codable {
     public let pages: Int
 }
 
-public struct RMCharacter: Codable, IdentifiableEntity, Sendable { // rickandmortyapi.com, поле image — прямой URL jpeg
+public struct RMCharacter: Codable, IdentifiableEntity, Sendable {
     public let id: Int
     public let name: String
     public let status: String
@@ -116,28 +112,26 @@ public struct RMLocationReference: Codable, Sendable {
     public let name: String
 }
 
-// MARK: - South Park API Models
 public struct SPAPIResponse: Codable {
     public let data: [SPCharacter]
 }
 
-public struct SPCharacter: Codable, IdentifiableEntity, Sendable { // spapi.dev, картинки в API нет — потом spwiki:имя
+public struct SPCharacter: Codable, IdentifiableEntity, Sendable {
     public let id: Int
     public let name: String
     public let sex: String?
     public let religion: String?
 }
 
-// MARK: - Big Mouth / Human Resources API Models (Fandom)
-public struct BMCharacter: Codable, IdentifiableEntity, Sendable { // страница Fandom, фото тоже через wiki API
+public struct BMCharacter: Codable, IdentifiableEntity, Sendable {
     public let pageid: Int
     public let name: String
     public var id: Int { pageid }
 }
 
-public protocol QuizCharacter: IdentifiableEntity, Sendable { // общий вид персонажа для generateChallenge
+public protocol QuizCharacter: IdentifiableEntity, Sendable {
     var characterName: String { get }
-    var imageResource: String { get } // URL или "spwiki:Kenny"
+    var imageResource: String { get }
 }
 
 extension RMCharacter: QuizCharacter {
@@ -167,9 +161,7 @@ public struct FandomCategoryResponse: Codable {
     }
 }
 
-// MARK: - Dynamic Quiz Logic
-
-public protocol QuizLogicProviding { // колода + «кого уже спрашивали». ViewModel не выбирает персонажа сама
+public protocol QuizLogicProviding {
     func inject(rm characters: [RMCharacter])
     func inject(sp characters: [SPCharacter])
     func inject(bm characters: [BMCharacter])
@@ -179,7 +171,7 @@ public protocol QuizLogicProviding { // колода + «кого уже спр�
     func restoreProgress(_ progress: QuizEngineProgress)
 }
 
-public struct QuizEngineProgress: Codable, Sendable { // кусок session.json: колода и уже использованные id/имена
+public struct QuizEngineProgress: Codable, Sendable {
     public var usedQuestionNames: [String]
     public var usedCharacterIDs: [Int]
     public var rmCharacters: [RMCharacter]
@@ -204,7 +196,7 @@ public struct QuizEngineProgress: Codable, Sendable { // кусок session.json
     }
 }
 
-public final class QuizLogicEngine: QuizLogicProviding { // один раунд — один движок. inject задаёт режим
+public final class QuizLogicEngine: QuizLogicProviding {
     private var rmCharacters: [RMCharacter] = []
     private var spCharacters: [SPCharacter] = []
     private var bmCharacters: [BMCharacter] = []
@@ -217,12 +209,12 @@ public final class QuizLogicEngine: QuizLogicProviding { // один раунд 
     public init() {}
 
     public func inject(rm characters: [RMCharacter]) {
-        // Фильтруем персонажей Rick and Morty с "пустыми" картинками:
-        // если один и тот же URL изображения встречается у многих персонажей,
-        // считаем его плейсхолдером и не используем такие записи.
+
+
+
         let groupedByImage = Dictionary(grouping: characters, by: { $0.image })
         let filtered = groupedByImage.flatMap { (key: String, value: [RMCharacter]) -> [RMCharacter] in
-            // Оставляем только уникальные изображения
+
             return value.count == 1 ? value : []
         }
         rmCharacters = filtered.isEmpty ? characters : filtered
@@ -252,7 +244,7 @@ public final class QuizLogicEngine: QuizLogicProviding { // один раунд 
         usedBMCharacterIDs.removeAll()
     }
 
-    public func generateChallenge() -> DynamicQuizQuestion? { // следующий вопрос или nil, если колода кончилась
+    public func generateChallenge() -> DynamicQuizQuestion? {
         switch activeMode {
         case .rickAndMorty:
             return generateChallenge(from: rmCharacters, usedIDs: &usedRMCharacterIDs)
@@ -263,7 +255,7 @@ public final class QuizLogicEngine: QuizLogicProviding { // один раунд 
         }
     }
 
-    public func exportProgress() -> QuizEngineProgress { // уход с экрана — сохранить, кого уже показали
+    public func exportProgress() -> QuizEngineProgress {
         QuizEngineProgress(
             usedQuestionNames: Array(usedQuestionNames),
             usedCharacterIDs: usedIDs(for: activeMode),
@@ -274,7 +266,7 @@ public final class QuizLogicEngine: QuizLogicProviding { // один раунд 
         )
     }
 
-    public func restoreProgress(_ progress: QuizEngineProgress) { // «Продолжить»: колода и used* как были
+    public func restoreProgress(_ progress: QuizEngineProgress) {
         rmCharacters = progress.rmCharacters
         spCharacters = progress.spCharacters
         bmCharacters = progress.bmCharacters
@@ -309,11 +301,11 @@ public final class QuizLogicEngine: QuizLogicProviding { // один раунд 
         from characters: [T],
         usedIDs: inout Set<T.ID>
     ) -> DynamicQuizQuestion? {
-        let availableSubjects = characters.filter { !usedIDs.contains($0.id) } // кого ещё не показывали картинкой
+        let availableSubjects = characters.filter { !usedIDs.contains($0.id) }
         guard availableSubjects.count > 1 else { return nil }
 
         let allNames = Set(availableSubjects.map(\.characterName))
-        let remainingNames = allNames.subtracting(usedQuestionNames) // имя в вопросе тоже не повторяем
+        let remainingNames = allNames.subtracting(usedQuestionNames)
         guard !remainingNames.isEmpty else { return nil }
 
         guard let subject = availableSubjects.randomElement() else { return nil }
@@ -326,7 +318,7 @@ public final class QuizLogicEngine: QuizLogicProviding { // один раунд 
 
         let useCorrectName: Bool
         if correctNameAvailable && wrongNameAvailable {
-            useCorrectName = Bool.random() // 50/50 «это он?» vs чужое имя
+            useCorrectName = Bool.random()
         } else {
             useCorrectName = correctNameAvailable
         }

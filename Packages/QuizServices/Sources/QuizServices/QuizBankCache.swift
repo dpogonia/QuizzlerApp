@@ -8,7 +8,7 @@
 import CoreServices
 import Foundation
 
-public protocol QuizBankCaching: Sendable { // JSON банков на диск после сплэша, чтобы играть без сети
+public protocol QuizBankCaching: Sendable {
     func saveRM(_ characters: [RMCharacter]) async
     func loadRM() async -> [RMCharacter]?
     func saveSP(_ characters: [SPCharacter]) async
@@ -19,7 +19,7 @@ public protocol QuizBankCaching: Sendable { // JSON банков на диск �
 
 public final class QuizBankCache: QuizBankCaching, @unchecked Sendable {
     private enum FileName {
-        static let rm = "banks/rm.json" // HR и Big Mouth делят bm.json
+        static let rm = "banks/rm.json"
         static let sp = "banks/sp.json"
         static let bm = "banks/bm.json"
     }

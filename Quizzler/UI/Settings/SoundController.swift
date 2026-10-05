@@ -9,7 +9,6 @@ import AVFoundation
 import Combine
 import QuizServices
 
-// Плееры из Resources/Audio. Выключили звук — стоп. Музыку раунда крутим по кругу, пока GameView на экране.
 @MainActor
 final class SoundController: ObservableObject {
     private let settings: any SoundSettingsProviding
@@ -70,7 +69,7 @@ final class SoundController: ObservableObject {
     func startGameMusic() {
         isGameMusicRequested = true
         guard isEnabled, let musicPlayer, !musicPlayer.isPlaying else { return }
-        musicPlayer.numberOfLoops = -1 // бесконечный луп
+        musicPlayer.numberOfLoops = -1
         musicPlayer.play()
     }
 
@@ -121,7 +120,7 @@ final class SoundController: ObservableObject {
 
     private func configureSession() {
         let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.ambient, mode: .default, options: [.mixWithOthers]) // не глушим музыку извне, сами тихонькие
+        try? session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
         try? session.setActive(true)
     }
 

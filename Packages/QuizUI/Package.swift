@@ -8,13 +8,13 @@
 
 import PackageDescription
 
-let package = Package( // локальный пакет: iOS 17, одна библиотека, без зависимостей
+let package = Package(
     name: "QuizUI",
     platforms: [
         .iOS(.v17)
     ],
     products: [
-        .library(name: "QuizUI", targets: ["QuizUI"]) // приложение делает import QuizUI
+        .library(name: "QuizUI", targets: ["QuizUI"])
     ],
     targets: [
         .target(name: "QuizUI")

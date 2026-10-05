@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает три колоды параллельно
+public protocol QuizPreloading: AnyObject, Sendable {
     func startIfNeeded() async
     func latestError() async -> Error?
     func allBanksUnavailable() async -> Bool
@@ -17,7 +17,7 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
     func bmCharacters() async throws -> [BMCharacter]
 }
 
-    public actor QuizPreloader: QuizPreloading { // actor: три Task пишут rmFailed/spFailed без гонок
+    public actor QuizPreloader: QuizPreloading {
     private enum Limits {
         static let pageConcurrency = 4
         static let imageConcurrency = 8
@@ -43,11 +43,11 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
         storedError
     }
 
-    public func allBanksUnavailable() -> Bool { // все три упали и кэша нет — сплэш без «Продолжить»
+    public func allBanksUnavailable() -> Bool {
         rmFailed && spFailed && bmFailed
     }
 
-    public func retryFailedLoads() { // кнопка «Повторить» на сплэше: сбрасываем только упавшие колоды
+    public func retryFailedLoads() {
         if rmFailed {
             rmTask = nil
             rmFailed = false
@@ -64,7 +64,7 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
         startIfNeeded()
     }
 
-    public func startIfNeeded() { // уже запущенный Task не трогаем — повторный вызов со сплэша дешёвый
+    public func startIfNeeded() {
         if rmTask == nil {
             rmTask = Task {
                 do {
@@ -97,7 +97,7 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
         }
     }
 
-    public func rmCharacters() async throws -> [RMCharacter] { // ждём тот же Task, что стартанул сплэш — сеть не качаем второй раз
+    public func rmCharacters() async throws -> [RMCharacter] {
         if let task = rmTask {
             return try await task.value
         }
@@ -145,7 +145,7 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
         }
     }
 
-    private func loadRMCharactersForGame() async throws -> [RMCharacter] { // сеть ок → пишем диск. сеть нет → кэш. кэша нет → throw
+    private func loadRMCharactersForGame() async throws -> [RMCharacter] {
         do {
             let characters = try await fetchRMCharactersFromNetwork()
             await bankCache.saveRM(characters)
@@ -165,11 +165,11 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
         }
         guard !allRMCharacters.isEmpty else { throw URLError(.badServerResponse) }
 
-        let candidateRM = Array(allRMCharacters.shuffled().prefix(80)) // не греем все 800 картинок, хватит пачки
+        let candidateRM = Array(allRMCharacters.shuffled().prefix(80))
         let readyRM = await filterReady(candidateRM) { character in
             character.image
         }
-        return readyRM.count >= 20 ? readyRM : allRMCharacters // меньше 20 с фотками — отдаём сырой список, игра всё равно попробует
+        return readyRM.count >= 20 ? readyRM : allRMCharacters
     }
 
     private func loadSPCharactersForGame() async throws -> [SPCharacter] {
@@ -224,7 +224,7 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
 
     private func fetchPages<Character: Sendable>(
         _ pages: [Int],
-        maxConcurrent: Int = Limits.pageConcurrency, // не больше 4 страниц сразу
+        maxConcurrent: Int = Limits.pageConcurrency,
         fetch: @escaping @Sendable (Int) async throws -> [Character]
     ) async throws -> [Character] {
         try await withThrowingTaskGroup(of: [Character].self) { group in
@@ -253,7 +253,7 @@ public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает
 
     private func filterReady<Character: Sendable>(
         _ characters: [Character],
-        maxConcurrent: Int = Limits.imageConcurrency, // заранее качаем jpeg, в раунде меньше сюрпризов
+        maxConcurrent: Int = Limits.imageConcurrency,
         imageResource: @escaping @Sendable (Character) -> String
     ) async -> [Character] {
         let network = self.network

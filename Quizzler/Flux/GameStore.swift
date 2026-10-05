@@ -10,28 +10,26 @@ import QuizUI
 import SwiftUI
 import UIKit
 
-// Action = что случилось. Store = как из этого получается картинка на экране
-
 @MainActor
-final class QuestionStore: ObservableObject { // то, что в середине экрана
-    @Published fileprivate(set) var posterImage: UIImage? // картинка или nil
-    @Published fileprivate(set) var questionText = "" // вопрос или имя после ответа
+final class QuestionStore: ObservableObject {
+    @Published fileprivate(set) var posterImage: UIImage?
+    @Published fileprivate(set) var questionText = ""
     @Published fileprivate(set) var questionColor: Color = QuizColor.primaryText
-    @Published fileprivate(set) var posterBorderColor: Color = QuizColor.posterBorder // белая / зелёная / красная рамка
-    @Published fileprivate(set) var isLoading = false // спиннер
-    @Published fileprivate(set) var buttonsEnabled = false // можно ли жать Да/Нет
+    @Published fileprivate(set) var posterBorderColor: Color = QuizColor.posterBorder
+    @Published fileprivate(set) var isLoading = false
+    @Published fileprivate(set) var buttonsEnabled = false
 }
 
 @MainActor
-final class TimerStore: ObservableObject { // текст 00:00, цвет, сколько секунд осталось
+final class TimerStore: ObservableObject {
     @Published fileprivate(set) var timerText = ""
     @Published fileprivate(set) var timerColor: Color = QuizColor.primaryText
     @Published fileprivate(set) var remainingTime: TimeInterval = 0
 }
 
 @MainActor
-final class ScoreStore: ObservableObject { // 3/20, индекс, сколько верных, лимит 20, алерт результата, флаг "закрой экран"
-    @Published fileprivate(set) var counterText = "0/0" // fileprivate(set) - снаружи можно только читать. Пишет только функция dispatch в этом файле
+final class ScoreStore: ObservableObject {
+    @Published fileprivate(set) var counterText = "0/0"
     @Published fileprivate(set) var currentQuestionIndex = 0
     @Published fileprivate(set) var correctAnswers = 0
     @Published fileprivate(set) var maxQuestions = 20
@@ -42,14 +40,14 @@ final class ScoreStore: ObservableObject { // 3/20, индекс, сколько
 }
 
 @MainActor
-final class GameStore: ObservableObject { // единственное место, где события из GameAction меняют экран
+final class GameStore: ObservableObject {
     let question: QuestionStore
     let timer: TimerStore
     let score: ScoreStore
 
-    private var cancellables = Set<AnyCancellable>() // cancellables — коробка, где лежат живые подписки Combine. В bindNestedStores делается так: «когда question / timer / score собрались обновиться — дёрни GameStore». Результат .sink { ... } — это объект-подписка типа AnyCancellable. Если его нигде не сохранить, Swift сразу его выкинет, подписка оборвётся, экран перестанет узнавать, что постер изменился. .store(in: &cancellables) кладёт подписку в Set. Пока жив GameStore, жив и набор — слушатели работают. Когда GameStore уничтожается (вышли из игры), набор тоже умирает, подписки отменяются сами. Отсюда имя: cancellable = «можно отменить». Это не список action и не кэш картинок. Только «не забудь слушать вложенные сторы, пока идёт раунд».
+    private var cancellables = Set<AnyCancellable>()
 
-    init(question: QuestionStore, timer: TimerStore, score: ScoreStore) { // кладёт три стора и вызывает bindNestedStores()
+    init(question: QuestionStore, timer: TimerStore, score: ScoreStore) {
         self.question = question
         self.timer = timer
         self.score = score
@@ -60,10 +58,10 @@ final class GameStore: ObservableObject { // единственное место
         self.init(question: QuestionStore(), timer: TimerStore(), score: ScoreStore())
     }
 
-    // единственный вход в картинку раунда: не View, не сервисы, только этот store и его dispatch
-    func dispatch(_ action: GameAction) { // switch: пришёл action → правим поля
+
+    func dispatch(_ action: GameAction) {
         switch action {
-        case .prepareSession(let maxQuestions): // всё обнулить, счётчик 0/20
+        case .prepareSession(let maxQuestions):
             question.posterImage = nil
             question.questionText = ""
             question.questionColor = QuizColor.primaryText
@@ -82,22 +80,22 @@ final class GameStore: ObservableObject { // единственное место
             timer.timerText = ""
             timer.timerColor = QuizColor.primaryText
 
-        case .showMessage(let text): // только текст
+        case .showMessage(let text):
             question.questionText = text
 
-        case .beginSync: // кнопки выкл, спиннер, «синхронизация»
+        case .beginSync:
             question.buttonsEnabled = false
             question.isLoading = true
             question.posterImage = nil
             question.questionText = L10n.Game.syncing
             score.counterText = QuizFormatters.scorePair(correct: 0, total: score.maxQuestions)
 
-        case .syncFailed(let message): // спиннер стоп, текст ошибки
+        case .syncFailed(let message):
             question.isLoading = false
             question.posterBorderColor = QuizColor.posterBorder
             question.questionText = message
 
-        case .beginQuestionLoad: // пустой кадр, спиннер, старое имя не висит.
+        case .beginQuestionLoad:
             question.buttonsEnabled = false
             question.isLoading = true
             question.posterImage = nil
@@ -105,7 +103,7 @@ final class GameStore: ObservableObject { // единственное место
             question.questionText = ""
             question.questionColor = QuizColor.primaryText
 
-        case .presentQuestion(let image, let text): // картинка и вопрос, кнопки вкл, в шапке номер index + 1
+        case .presentQuestion(let image, let text):
             question.posterImage = image
             question.questionColor = QuizColor.primaryText
             question.questionText = text
@@ -116,7 +114,7 @@ final class GameStore: ObservableObject { // единственное место
                 total: score.maxQuestions
             )
 
-        case .restoreProgress(let currentQuestionIndex, let correctAnswers, let maxQuestions): // подставить сохранённый прогресс, кнопки пока выкл (картинку потом дорисует ViewModel)
+        case .restoreProgress(let currentQuestionIndex, let correctAnswers, let maxQuestions):
             question.questionColor = QuizColor.primaryText
             question.posterBorderColor = QuizColor.posterBorder
             question.isLoading = false
@@ -133,10 +131,10 @@ final class GameStore: ObservableObject { // единственное место
                 total: maxQuestions
             )
 
-        case .lockAnswers: // только кнопки выкл.
+        case .lockAnswers:
             question.buttonsEnabled = false
 
-        case .revealAnswer(let isCorrect, let name): // если верно, correctAnswers += 1; рамка и имя зелёные или красные
+        case .revealAnswer(let isCorrect, let name):
             if isCorrect {
                 score.correctAnswers += 1
             }
@@ -146,37 +144,37 @@ final class GameStore: ObservableObject { // единственное место
                 question.questionText = name.uppercased()
             }
 
-        case .advanceQuestion: // индекс +1
+        case .advanceQuestion:
             score.currentQuestionIndex += 1
 
-        case .finishRound(let title, let text): // показать алерт.
+        case .finishRound(let title, let text):
             question.isLoading = false
             question.posterBorderColor = QuizColor.posterBorder
             score.resultTitle = title
             score.resultText = text
             score.showResult = true
 
-        case .resetPosterBorder: // белая рамка
+        case .resetPosterBorder:
             question.isLoading = false
             question.posterBorderColor = QuizColor.posterBorder
 
-        case .requestDismiss: // shouldDismiss = true, GameView делает dismiss()
+        case .requestDismiss:
             score.shouldDismiss = true
 
-        case .hideResult: // спрятать алерт
+        case .hideResult:
             score.showResult = false
 
-        case .startTimer(let duration): // записать секунды и обновить текст
+        case .startTimer(let duration):
             timer.remainingTime = duration
             applyTimerDisplay()
 
-        case .timerTick: // вычесть 0.05, не уйти ниже нуля
+        case .timerTick:
             timer.remainingTime = max(timer.remainingTime - 0.05, 0)
             applyTimerDisplay()
         }
     }
 
-    private func applyTimerDisplay() { // из секунд делает SS:CC (секунды и сотые). На нуле красный, меньше 3 сек — жёлтый
+    private func applyTimerDisplay() {
         let clamped = max(timer.remainingTime, 0)
         let totalCentiseconds = Int((clamped * 100).rounded(.down))
         let seconds = totalCentiseconds / 100
@@ -192,7 +190,7 @@ final class GameStore: ObservableObject { // единственное место
         }
     }
 
-    private func bindNestedStores() { // у вложенного стора свой objectWillChange. GameView подписан на GameStore. Поэтому три сигнала склеивают и шлют наверх: иначе постер обновился бы, а экран мог не перерисоваться.
+    private func bindNestedStores() {
         question.objectWillChange
             .merge(with: timer.objectWillChange)
             .merge(with: score.objectWillChange)

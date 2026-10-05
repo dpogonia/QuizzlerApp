@@ -8,16 +8,16 @@
 import Foundation
 
 public enum NetworkError: Error, Equatable {
-    case invalidResponse // пришло не HTTP (странно для URLSession, но мало ли)
-    case statusCode(Int) // не 2xx — 404, 500 и т.д.
+    case invalidResponse
+    case statusCode(Int)
 }
 
-public protocol NetworkServing: Sendable { // качальщик байт, без знания Rick and Morty
+public protocol NetworkServing: Sendable {
     func data(for request: URLRequest) async throws -> Data
 }
 
 public extension NetworkServing {
-    func data(from url: URL) async throws -> Data { // короткий путь: только URL, без ручной сборки URLRequest
+    func data(from url: URL) async throws -> Data {
         try await data(for: URLRequest(url: url))
     }
 }

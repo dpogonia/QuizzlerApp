@@ -9,7 +9,6 @@ import Combine
 import QuizServices
 import SwiftUI
 
-// Тексты рекордов. duration сюда прилетает с чипов таймера, потому что рекорд хранится отдельно на 5с / 10с / …
 @MainActor
 final class RecordsViewModel: ObservableObject {
     private let scoreStore: any BestScoreStoring
@@ -40,7 +39,7 @@ final class RecordsViewModel: ObservableObject {
 }
 
 @MainActor
-final class TimerSettingsViewModel: ObservableObject { // чипы сложности, пишет в QuizTimerSettingsService
+final class TimerSettingsViewModel: ObservableObject {
     private let timerSettings: any QuizTimerSettingsProviding
 
     @Published var selectedDuration: Int
@@ -61,7 +60,7 @@ final class TimerSettingsViewModel: ObservableObject { // чипы сложно�
 }
 
 @MainActor
-final class SettingsViewModel: ObservableObject { // склейка: сменили секунды → обновить подписи рекордов
+final class SettingsViewModel: ObservableObject {
     let records: RecordsViewModel
     let timer: TimerSettingsViewModel
 

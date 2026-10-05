@@ -8,7 +8,7 @@
 import Combine
 
 @MainActor
-protocol FeedbackPlaying: AnyObject { // игра и меню зовут это, а не два контроллера по отдельности
+protocol FeedbackPlaying: AnyObject {
     func playTap()
     func playSelection()
     func playSuccess()
@@ -21,7 +21,7 @@ protocol FeedbackPlaying: AnyObject { // игра и меню зовут это,
 }
 
 @MainActor
-final class FeedbackController: ObservableObject, FeedbackPlaying { // прокси: почти каждый метод = haptics + sounds
+final class FeedbackController: ObservableObject, FeedbackPlaying {
     let haptics: HapticController
     let sounds: SoundController
 

@@ -9,7 +9,6 @@ import Combine
 import QuizServices
 import SwiftUI
 
-// Язык интерфейса. Пишем в сервис и в AppLocalization, иначе L10n останется на старом бандле.
 @MainActor
 final class LanguageController: ObservableObject {
     private let languageSettings: any LanguageSettingsProviding

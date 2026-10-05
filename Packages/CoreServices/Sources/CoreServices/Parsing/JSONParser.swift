@@ -7,20 +7,20 @@
 
 import Foundation
 
-public struct JSONParser: JSONParsing { // тонкая обёртка над JSONDecoder / JSONEncoder
+public struct JSONParser: JSONParsing {
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
 
-    public init(decoder: JSONDecoder = JSONDecoder(), encoder: JSONEncoder = JSONEncoder()) { // можно подсунуть свой decoder с датами, по умолчанию системный
+    public init(decoder: JSONDecoder = JSONDecoder(), encoder: JSONEncoder = JSONEncoder()) {
         self.decoder = decoder
         self.encoder = encoder
     }
 
-    public func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T { // байты с сети / диска → структура
+    public func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
         try decoder.decode(type, from: data)
     }
 
-    public func encode<T: Encodable>(_ value: T) throws -> Data { // структура → байты, потом DiskFileStore.write
+    public func encode<T: Encodable>(_ value: T) throws -> Data {
         try encoder.encode(value)
     }
 }

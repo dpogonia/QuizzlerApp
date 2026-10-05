@@ -8,7 +8,7 @@
 import CoreServices
 import Foundation
 
-public protocol ThemeSettingsProviding: AnyObject { // light / dark / system в UserDefaults
+public protocol ThemeSettingsProviding: AnyObject {
     var current: AppTheme { get set }
 }
 
@@ -27,7 +27,7 @@ public final class ThemeSettingsService: ThemeSettingsProviding {
                let value = AppTheme(rawValue: raw) {
                 return value
             }
-            return .system // первый запуск — как в iOS
+            return .system
         }
         set {
             storage.set(newValue.rawValue, forKey: storageKey)

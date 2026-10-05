@@ -8,7 +8,7 @@
 
 import PackageDescription
 
-let package = Package( // квиз: API, кэш банков, сессия, настройки. зависит от CoreServices
+let package = Package(
     name: "QuizServices",
     platforms: [
         .iOS(.v17)
@@ -17,12 +17,12 @@ let package = Package( // квиз: API, кэш банков, сессия, на
         .library(name: "QuizServices", targets: ["QuizServices"])
     ],
     dependencies: [
-        .package(path: "../CoreServices") // соседняя папка, не GitHub
+        .package(path: "../CoreServices")
     ],
     targets: [
         .target(
             name: "QuizServices",
-            dependencies: ["CoreServices"] // сеть/диск/парсер оттуда
+            dependencies: ["CoreServices"]
         )
     ]
 )

@@ -10,7 +10,6 @@ import CoreHaptics
 import QuizServices
 import UIKit
 
-// Вибрации. Тап/успех/ошибка — UIKit generators. Последние 3 сек вопроса — тихий непрерывный паттерн Core Haptics.
 @MainActor
 final class HapticController: ObservableObject {
     private let settings: any HapticSettingsProviding
@@ -78,7 +77,7 @@ final class HapticController: ObservableObject {
         guard isEnabled, !isUrgencyActive else { return }
         isUrgencyActive = true
 
-        if supportsEngine, startEngineUrgency() { // нет Taptic Engine — дёргаем лёгкий impact по таймеру
+        if supportsEngine, startEngineUrgency() {
             return
         }
 

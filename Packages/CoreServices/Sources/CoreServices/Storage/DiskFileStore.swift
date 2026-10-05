@@ -7,9 +7,8 @@
 
 import Foundation
 
-// Байты на диск: банки, session.json, jpeg постеров. actor — два параллельных write не перемешают файл.
 public actor DiskFileStore: FileStoring {
-    private let rootURL: URL // …/Application Support/Quizzler
+    private let rootURL: URL
     private let fileManager: FileManager
 
     public init(
@@ -21,7 +20,7 @@ public actor DiskFileStore: FileStoring {
         let base = fileManager.urls(for: directory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
         self.rootURL = base.appendingPathComponent(folderName, isDirectory: true)
-        try? fileManager.createDirectory(at: rootURL, withIntermediateDirectories: true) // папки ещё нет — создаём
+        try? fileManager.createDirectory(at: rootURL, withIntermediateDirectories: true)
     }
 
     public func write(_ data: Data, toRelativePath path: String) throws {
@@ -29,12 +28,12 @@ public actor DiskFileStore: FileStoring {
         try fileManager.createDirectory(
             at: url.deletingLastPathComponent(),
             withIntermediateDirectories: true
-        ) // banks/ или images/ сами появятся
-        try data.write(to: url, options: .atomic) // сначала tmp, потом замена — полуфайл не оставим
+        )
+        try data.write(to: url, options: .atomic)
     }
 
     public func read(fromRelativePath path: String) -> Data? {
-        try? Data(contentsOf: url(for: path)) // нет файла — nil, не throw
+        try? Data(contentsOf: url(for: path))
     }
 
     public func remove(relativePath path: String) {
@@ -45,7 +44,7 @@ public actor DiskFileStore: FileStoring {
         fileManager.fileExists(atPath: url(for: path).path)
     }
 
-    private func url(for path: String) -> URL { // "banks/rm.json" → root/banks/rm.json
+    private func url(for path: String) -> URL {
         path.split(separator: "/").reduce(rootURL) { partial, component in
             partial.appendingPathComponent(String(component))
         }

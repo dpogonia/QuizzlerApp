@@ -21,7 +21,7 @@ public enum QuizAPIError: LocalizedError {
     }
 }
 
-public protocol QuizNetworking: Sendable { // списки персонажей и картинки. не общий NetworkServing — знает URL квиза
+public protocol QuizNetworking: Sendable {
     func fetchRMCharacters(page: Int) async throws -> [RMCharacter]
     func fetchSPCharacters(page: Int) async throws -> [SPCharacter]
     func fetchBMCharacters() async throws -> [BMCharacter]
@@ -42,7 +42,7 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         self.network = network
         self.parser = parser
         self.imageStore = imageStore
-        imageCache.countLimit = 150 // столько постеров в RAM, дальше NSCache сам выкинет
+        imageCache.countLimit = 150
     }
 
     public func fetchRMCharacters(page: Int) async throws -> [RMCharacter] {
@@ -68,13 +68,13 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         ]
         guard let url = components.url else { throw URLError(.badURL) }
         var request = URLRequest(url: url)
-        request.setValue("Quizzler/1.0", forHTTPHeaderField: "User-Agent") // Fandom без UA иногда режет
+        request.setValue("Quizzler/1.0", forHTTPHeaderField: "User-Agent")
         let data = try await network.data(for: request)
         let decoded = try parser.decode(FandomCategoryResponse.self, from: data)
         return decoded.query.categorymembers.map { BMCharacter(pageid: $0.pageid, name: $0.title) }
     }
 
-    public func fetchImage(from urlString: String) async throws -> UIImage { // память → диск (sha256) → сеть. spwiki:/bmwiki: — не прямой URL, ищем thumbnail на вики
+    public func fetchImage(from urlString: String) async throws -> UIImage {
         let cacheKey = NSString(string: urlString)
         if let cachedImage = imageCache.object(forKey: cacheKey) {
             return cachedImage
@@ -118,7 +118,7 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
     private func imagePath(for urlString: String) -> String {
         let digest = SHA256.hash(data: Data(urlString.utf8))
         let hex = digest.map { String(format: "%02x", $0) }.joined()
-        return "images/\(hex).jpg" // имя файла из хеша URL, не из имени персонажа (слэши/кириллица)
+        return "images/\(hex).jpg"
     }
 
     private func fetchJSON<T: Decodable>(urlString: String) async throws -> T {
@@ -159,7 +159,7 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         return image
     }
 
-    private func fetchFandomThumbnailURL(baseAPI: String, name: String) async throws -> String { // pageimages → thumbnail 600px
+    private func fetchFandomThumbnailURL(baseAPI: String, name: String) async throws -> String {
         var components = URLComponents(string: baseAPI)!
         components.queryItems = [
             URLQueryItem(name: "action", value: "query"),

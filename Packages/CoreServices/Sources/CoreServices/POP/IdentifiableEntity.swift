@@ -7,14 +7,13 @@
 
 import Foundation
 
-// У персонажа есть id. Коллекция умеет first(id:) / contains(id:) без копипасты по RM/SP/BM.
 public protocol IdentifiableEntity {
-    associatedtype ID: Hashable // Int у RM/SP, у BM это pageid
+    associatedtype ID: Hashable
     var id: ID { get }
 }
 
 public extension Collection where Element: IdentifiableEntity {
-    func first(id: Element.ID) -> Element? { // найти персонажа по id в массиве
+    func first(id: Element.ID) -> Element? {
         first { $0.id == id }
     }
 

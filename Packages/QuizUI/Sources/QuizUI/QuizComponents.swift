@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct QuizSectionTitle: View { // «Рекорды», «Тема» — крупный заголовок секции
+public struct QuizSectionTitle: View {
     let text: String
 
     public init(_ text: String) {
@@ -21,7 +21,7 @@ public struct QuizSectionTitle: View { // «Рекорды», «Тема» — �
     }
 }
 
-public struct QuizInfoCard: View { // строка рекорда: название режима + «лучший счёт…»
+public struct QuizInfoCard: View {
     let title: String
     let subtitle: String
 
@@ -47,7 +47,7 @@ public struct QuizInfoCard: View { // строка рекорда: назван�
     }
 }
 
-public struct QuizLoadingStatus: View { // спиннер под карточками, пока качается банк
+public struct QuizLoadingStatus: View {
     let text: String
 
     public init(text: String) {
@@ -66,7 +66,7 @@ public struct QuizLoadingStatus: View { // спиннер под карточк�
     }
 }
 
-public struct QuizHeroIcon: View { // попкорн на сплэше и меню
+public struct QuizHeroIcon: View {
     let systemName: String
     let size: CGFloat
     let color: Color
@@ -84,7 +84,7 @@ public struct QuizHeroIcon: View { // попкорн на сплэше и мен
     }
 }
 
-public struct QuizHintText: View { // серая подсказка под чипами
+public struct QuizHintText: View {
     let text: String
 
     public init(_ text: String) {

@@ -8,7 +8,7 @@
 import CoreServices
 import Foundation
 
-public protocol SoundSettingsProviding: AnyObject { // нет ключа = включено (строка "off" выключает)
+public protocol SoundSettingsProviding: AnyObject {
     var isEnabled: Bool { get set }
 }
 
@@ -26,7 +26,7 @@ public final class SoundSettingsService: SoundSettingsProviding {
             storage.string(forKey: storageKey) != "off"
         }
         set {
-            storage.set(newValue ? "on" : "off", forKey: storageKey) // не Bool в defaults, чтобы «нет ключа» = вкл
+            storage.set(newValue ? "on" : "off", forKey: storageKey)
         }
     }
 }

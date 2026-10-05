@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct PrimaryAnswerButton: View { // большие Да / Нет
+public struct PrimaryAnswerButton: View {
     let title: String
     let isEnabled: Bool
     let action: () -> Void
@@ -32,7 +32,7 @@ public struct PrimaryAnswerButton: View { // большие Да / Нет
                 }
         }
         .buttonStyle(.plain)
-        .opacity(isEnabled ? 1 : 0.5) // пока грузится / уже ответили
+        .opacity(isEnabled ? 1 : 0.5)
         .disabled(!isEnabled)
     }
 }

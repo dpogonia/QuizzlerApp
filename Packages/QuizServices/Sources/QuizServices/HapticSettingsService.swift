@@ -8,7 +8,7 @@
 import CoreServices
 import Foundation
 
-public protocol HapticSettingsProviding: AnyObject { // как звук: пусто = вкл
+public protocol HapticSettingsProviding: AnyObject {
     var isEnabled: Bool { get set }
 }
 
@@ -26,7 +26,7 @@ public final class HapticSettingsService: HapticSettingsProviding {
             storage.string(forKey: storageKey) != "off"
         }
         set {
-            storage.set(newValue ? "on" : "off", forKey: storageKey) // как звук: нет ключа = вкл
+            storage.set(newValue ? "on" : "off", forKey: storageKey)
         }
     }
 }

@@ -9,7 +9,6 @@ import Combine
 import QuizServices
 import SwiftUI
 
-// Логика меню: банк, новая игра, «Продолжить», диалог resume. StartView только рисует.
 @MainActor
 final class ModeMenuViewModel: ObservableObject {
     private let preloader: any QuizPreloading
@@ -63,7 +62,7 @@ final class ModeMenuViewModel: ObservableObject {
 
     func select(_ mode: GameMode) {
         feedback.playTap()
-        if let savedSession, savedSession.mode == mode { // тот же режим, что в снимке — спросим, не затирать ли
+        if let savedSession, savedSession.mode == mode {
             resumePromptMode = mode
             showResumePrompt = true
             return
@@ -82,7 +81,7 @@ final class ModeMenuViewModel: ObservableObject {
     }
 
     private func start(mode: GameMode, snapshot: QuizSessionSnapshot?) {
-        guard !isLoading else { return } // пока крутится спиннер на карточке — второй тап игнор
+        guard !isLoading else { return }
         isLoading = true
         loadingMode = mode
 
@@ -100,7 +99,7 @@ final class ModeMenuViewModel: ObservableObject {
                     case .bigMouth:
                         game.configureWithBMCharacters(try await preloader.bmCharacters())
                     case .humanResources:
-                        game.configureWithHRCharacters(try await preloader.bmCharacters()) // HR берёт тот же Fandom-банк, что Big Mouth
+                        game.configureWithHRCharacters(try await preloader.bmCharacters())
                     }
                 }
                 session = game
@@ -128,7 +127,7 @@ final class ModeMenuViewModel: ObservableObject {
 }
 
 @MainActor
-final class StartViewModel: ObservableObject { // оболочка: SwiftUI подписан на неё, внутри живёт menu
+final class StartViewModel: ObservableObject {
     let menu: ModeMenuViewModel
 
     private var cancellables = Set<AnyCancellable>()

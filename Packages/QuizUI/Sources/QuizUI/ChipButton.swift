@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct ChipButton: View { // чип настроек: выбран — серый фон
+public struct ChipButton: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
@@ -28,6 +28,6 @@ public struct ChipButton: View { // чип настроек: выбран — с
                 .background(isSelected ? QuizColor.chipSelected : QuizColor.chipIdle)
                 .clipShape(RoundedRectangle(cornerRadius: QuizRadius.chip, style: .continuous))
         }
-        .buttonStyle(.plain) // без системной подсветки кнопки, фон сам рисуем
+        .buttonStyle(.plain)
     }
 }

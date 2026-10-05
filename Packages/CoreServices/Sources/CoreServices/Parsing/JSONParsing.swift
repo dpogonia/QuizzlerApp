@@ -7,13 +7,13 @@
 
 import Foundation
 
-public protocol JSONParsing: Sendable { // Data ↔ Codable, чтобы сеть не знала JSONDecoder
+public protocol JSONParsing: Sendable {
     func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T
     func encode<T: Encodable>(_ value: T) throws -> Data
 }
 
 public extension JSONParsing {
-    func decodeList<T: Decodable>(_ type: T.Type, from data: Data) throws -> [T] { // сразу массив, без [T].self в каждом вызове
+    func decodeList<T: Decodable>(_ type: T.Type, from data: Data) throws -> [T] {
         try decode([T].self, from: data)
     }
 }

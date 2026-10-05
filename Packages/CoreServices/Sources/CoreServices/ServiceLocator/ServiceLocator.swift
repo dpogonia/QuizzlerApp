@@ -7,17 +7,16 @@
 
 import Foundation
 
-// Шкаф: тип протокола → готовый объект. AppAssembly.register, экраны берут через AppEnvironment (resolve).
 public final class ServiceLocator: @unchecked Sendable {
-    public static let shared = ServiceLocator() // один на процесс, bootstrap кладёт сюда сервисы
+    public static let shared = ServiceLocator()
 
-    private var factories: [ObjectIdentifier: () -> Any] = [:] // ключ — тип (NetworkServing.self), значение — «выдай объект»
-    private let lock = NSLock() // register/resolve могут с разных мест, словарь не thread-safe сам
+    private var factories: [ObjectIdentifier: () -> Any] = [:]
+    private let lock = NSLock()
 
     public init() {}
 
-    public func register<Service>(_ type: Service.Type = Service.self, instance: Service) { // «запомни: по этому протоколу выдавай вот этот объект»
-        register(type) { instance } // замыкание всегда возвращает тот же экземпляр, не новую копию
+    public func register<Service>(_ type: Service.Type = Service.self, instance: Service) {
+        register(type) { instance }
     }
 
     public func register<Service>(_ type: Service.Type = Service.self, factory: @escaping () -> Service) {
@@ -32,7 +31,7 @@ public final class ServiceLocator: @unchecked Sendable {
         lock.unlock()
 
         guard let factory, let service = factory() as? Service else {
-            fatalError("Service \(type) is not registered in ServiceLocator") // забыли register в AppAssembly
+            fatalError("Service \(type) is not registered in ServiceLocator")
         }
         return service
     }

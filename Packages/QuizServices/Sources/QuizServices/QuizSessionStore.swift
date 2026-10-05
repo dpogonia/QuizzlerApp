@@ -8,7 +8,7 @@
 import CoreServices
 import Foundation
 
-public struct QuizSessionSnapshot: Codable, Sendable { // всё чтобы открыть тот же вопрос: режим, счёт, таймер, движок, имя
+public struct QuizSessionSnapshot: Codable, Sendable {
     public var mode: GameMode
     public var currentQuestionIndex: Int
     public var correctAnswers: Int
@@ -52,7 +52,7 @@ public protocol QuizSessionPersisting: Sendable {
     func clear() async
 }
 
-public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable { // Application Support: session.json + session_image.jpg
+public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable {
     private enum FileName {
         static let snapshot = "session.json"
         static let image = "session_image.jpg"
@@ -72,7 +72,7 @@ public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable 
         if let questionImage {
             try? await files.write(questionImage, toRelativePath: FileName.image)
         } else {
-            await files.remove(relativePath: FileName.image) // вопроса в снимке нет — старый jpeg не оставляем
+            await files.remove(relativePath: FileName.image)
         }
     }
 
@@ -85,7 +85,7 @@ public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable 
         await files.read(fromRelativePath: FileName.image)
     }
 
-    public func clear() async { // доиграли / новая игра
+    public func clear() async {
         await files.remove(relativePath: FileName.snapshot)
         await files.remove(relativePath: FileName.image)
     }

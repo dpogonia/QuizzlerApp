@@ -8,7 +8,7 @@
 import SwiftUI
 import UIKit
 
-public struct PosterFrameView: View { // рамка 2:3, UIImage?, бордер, спиннер. API не знает
+public struct PosterFrameView: View {
     let image: UIImage?
     let borderColor: Color
     let isLoading: Bool
@@ -47,16 +47,16 @@ public struct PosterFrameView: View { // рамка 2:3, UIImage?, бордер,
             .clipShape(RoundedRectangle(cornerRadius: QuizRadius.poster, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: QuizRadius.poster, style: .continuous)
-                    .strokeBorder(borderColor, lineWidth: 16) // толстая рамка: белая / зелёная / красная
+                    .strokeBorder(borderColor, lineWidth: 16)
             }
-            .frame(width: geo.size.width, height: geo.size.height, alignment: .center) // постер по центру дырки
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private static func fittedSize(in container: CGSize) -> CGSize {
         guard container.width > 0, container.height > 0 else { return .zero }
-        if container.width / container.height > aspectRatio { // контейнер шире постера — упираемся в высоту
+        if container.width / container.height > aspectRatio {
             return CGSize(width: container.height * aspectRatio, height: container.height)
         }
         return CGSize(width: container.width, height: container.width / aspectRatio)

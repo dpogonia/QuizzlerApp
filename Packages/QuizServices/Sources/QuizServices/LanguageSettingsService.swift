@@ -8,7 +8,7 @@
 import CoreServices
 import Foundation
 
-public protocol LanguageSettingsProviding: AnyObject { // ru / en, первый запуск — язык телефона
+public protocol LanguageSettingsProviding: AnyObject {
     var current: AppLanguage { get set }
 }
 
@@ -27,7 +27,7 @@ public final class LanguageSettingsService: LanguageSettingsProviding {
                let value = AppLanguage(rawValue: raw) {
                 return value
             }
-            return .systemDefault // нет ключа — как язык телефона
+            return .systemDefault
         }
         set {
             storage.set(newValue.rawValue, forKey: storageKey)

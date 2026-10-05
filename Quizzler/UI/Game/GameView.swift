@@ -8,19 +8,18 @@
 import QuizUI
 import SwiftUI
 
-// Экран раунда: шапка, постер, вопрос, Да/Нет. Сам в API не ходит — читает QuizSessionViewModel (question / timer / score).
 struct GameView: View {
-    @ObservedObject var viewModel: QuizSessionViewModel // не создаём сами: меню передало уже собранную сессию. ObservedObject = просто слушаем, владелец снаружи
-    @EnvironmentObject private var feedback: FeedbackController // музыка и тапы, тот же объект что положили в QuizzlerApp
-    @Environment(\.dismiss) private var dismiss // закрыть этот экран и вернуться в меню
-    @Environment(\.scenePhase) private var scenePhase // active / inactive / background — свернули приложение или нет
+    @ObservedObject var viewModel: QuizSessionViewModel
+    @EnvironmentObject private var feedback: FeedbackController
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(spacing: QuizSpacing.stack) {
-            GameHeaderView(viewModel: viewModel) // назад, таймер, 3/20
+            GameHeaderView(viewModel: viewModel)
                 .frame(height: 32)
 
-            PosterFrameView( // рамка из QuizUI. картинка / цвет бордера / спиннер — из QuestionStore
+            PosterFrameView(
                 image: viewModel.question.posterImage,
                 borderColor: viewModel.question.posterBorderColor,
                 isLoading: viewModel.question.isLoading
@@ -28,7 +27,7 @@ struct GameView: View {
             .aspectRatio(2 / 3, contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Text(viewModel.question.questionText) // сначала «это Morty?», после ответа — имя зелёным/красным
+            Text(viewModel.question.questionText)
                 .font(QuizFont.question)
                 .foregroundStyle(viewModel.question.questionColor)
                 .multilineTextAlignment(.center)
@@ -41,7 +40,7 @@ struct GameView: View {
             HStack(spacing: QuizSpacing.stack) {
                 PrimaryAnswerButton(
                     title: L10n.Game.no,
-                    isEnabled: viewModel.question.buttonsEnabled, // пока грузится или уже ответили — кнопки серые
+                    isEnabled: viewModel.question.buttonsEnabled,
                     action: viewModel.answerNo
                 )
                 PrimaryAnswerButton(
@@ -58,32 +57,32 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(QuizColor.screenBackground)
         .toolbar(.hidden, for: .navigationBar)
-        .navigationBarBackButtonHidden(true) // системную стрелку прячем
+        .navigationBarBackButtonHidden(true)
         .onAppear {
-            viewModel.startIfNeeded() // один раз: новая игра или restore с диска
+            viewModel.startIfNeeded()
             feedback.startGameMusic()
         }
         .onDisappear {
             feedback.stopGameMusic()
-            viewModel.stop() // таймер и загрузки стоп
-            Task { await viewModel.persistSession() } // снимок на диск, карточка «Продолжить»
+            viewModel.stop()
+            Task { await viewModel.persistSession() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 feedback.startGameMusic()
             } else {
-                feedback.pauseGameMusic() // в фон — музыку только пауза
+                feedback.pauseGameMusic()
             }
             if phase == .inactive || phase == .background {
-                Task { await viewModel.persistSession() } // свернули - тоже пишем сессию, мало ли убьют процесс
+                Task { await viewModel.persistSession() }
             }
         }
         .onChange(of: viewModel.score.shouldDismiss) { _, shouldDismiss in
             if shouldDismiss {
-                dismiss() // закрываем GameView
+                dismiss()
             }
         }
-        .alert(viewModel.score.resultTitle, isPresented: Binding( // алерт «раунд окончен».
+        .alert(viewModel.score.resultTitle, isPresented: Binding(
             get: { viewModel.score.showResult },
             set: { isPresented in
                 if !isPresented {
@@ -92,7 +91,7 @@ struct GameView: View {
             }
         )) {
             Button(L10n.Game.playAgain) {
-                viewModel.playAgain() // тот же режим заново играть
+                viewModel.playAgain()
             }
             Button(L10n.Game.backToMenu, role: .cancel) {
                 viewModel.leaveToMenu()
@@ -103,7 +102,7 @@ struct GameView: View {
     }
 }
 
-private struct GameHeaderView: View { // только этот файл, снаружи не нужен
+private struct GameHeaderView: View {
     @ObservedObject var viewModel: QuizSessionViewModel
 
     var body: some View {
@@ -120,13 +119,13 @@ private struct GameHeaderView: View { // только этот файл, сна�
 
             Text(viewModel.timer.timerText)
                 .font(QuizFont.header)
-                .foregroundStyle(viewModel.timer.timerColor) // на последних секундах желтеет/краснеет в TimerStore
+                .foregroundStyle(viewModel.timer.timerColor)
                 .monospacedDigit()
                 .frame(width: 92, alignment: .leading)
 
             Spacer(minLength: 0)
 
-            Text(viewModel.score.counterText) // 3/20
+            Text(viewModel.score.counterText)
                 .font(QuizFont.header)
                 .foregroundStyle(QuizColor.primaryText)
                 .monospacedDigit()

@@ -8,7 +8,7 @@
 import CoreServices
 import Foundation
 
-public protocol BestScoreStoring: AnyObject { // лучший счёт на текущую длительность таймера
+public protocol BestScoreStoring: AnyObject {
     func bestScore(for mode: GameMode) -> (score: Int, total: Int)?
     func updateBestScore(correct: Int, total: Int, for mode: GameMode)
 }
@@ -36,7 +36,7 @@ public final class BestScoreStore: BestScoreStoring {
     public func updateBestScore(correct: Int, total: Int, for mode: GameMode) {
         guard total > 0 else { return }
         if let current = bestScore(for: mode), correct <= current.score {
-            return // хуже или равно — не затираем
+            return
         }
         let timer = timerSettings.currentDuration
         storage.set(correct, forKey: bestScoreKey(for: mode, timer: timer))
@@ -44,7 +44,7 @@ public final class BestScoreStore: BestScoreStoring {
     }
 
     private func bestScoreKey(for mode: GameMode, timer: Int) -> String {
-        "bestScore_\(mode.rawValue)_\(timer)" // ключ с секундами: рекорд на 5с и на 10с разные
+        "bestScore_\(mode.rawValue)_\(timer)"
     }
 
     private func bestTotalKey(for mode: GameMode, timer: Int) -> String {
