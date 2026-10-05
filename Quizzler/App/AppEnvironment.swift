@@ -13,7 +13,6 @@ import SwiftUI
 @MainActor
 final class AppEnvironment: ObservableObject {
     let locator: ServiceLocator
-
     let preloader: any QuizPreloading
     let scoreStore: any BestScoreStoring
     let timerSettings: any QuizTimerSettingsProviding
@@ -23,7 +22,6 @@ final class AppEnvironment: ObservableObject {
     let languageSettings: any LanguageSettingsProviding
     let hapticSettings: any HapticSettingsProviding
     let soundSettings: any SoundSettingsProviding
-
 
     init(locator: ServiceLocator) {
         self.locator = locator

@@ -39,7 +39,6 @@ enum QuizFormatters {
 }
 
 extension GameMode {
-
     var localizedTitle: String {
         switch self {
         case .rickAndMorty: return L10n.Mode.RickAndMorty.title

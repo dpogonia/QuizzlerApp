@@ -38,8 +38,6 @@ final class QuizSessionViewModel: ObservableObject {
     private var hasStarted = false
     private var cancellables = Set<AnyCancellable>()
 
-
-
     init(
         mode: GameMode,
         engine: QuizLogicProviding,
@@ -58,14 +56,12 @@ final class QuizSessionViewModel: ObservableObject {
         self.feedback = feedback
         self.store = GameStore()
 
-
         store.objectWillChange
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
     }
-
 
     func configureWithRMCharacters(_ characters: [RMCharacter]) {
         engine.inject(rm: characters)
@@ -166,7 +162,6 @@ final class QuizSessionViewModel: ObservableObject {
         var includeCurrentQuestion = question.buttonsEnabled && question.posterImage != nil
 
         if !question.buttonsEnabled, question.posterImage != nil, !question.isLoading {
-
             index += 1
             includeCurrentQuestion = false
         }

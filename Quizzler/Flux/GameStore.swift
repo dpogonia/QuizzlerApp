@@ -58,7 +58,6 @@ final class GameStore: ObservableObject {
         self.init(question: QuestionStore(), timer: TimerStore(), score: ScoreStore())
     }
 
-
     func dispatch(_ action: GameAction) {
         switch action {
         case .prepareSession(let maxQuestions):

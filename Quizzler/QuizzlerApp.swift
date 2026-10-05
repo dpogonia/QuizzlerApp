@@ -9,7 +9,6 @@ import SwiftUI
 
 @main
 struct QuizzlerApp: App {
-
     @StateObject private var themeController: ThemeController
     @StateObject private var languageController: LanguageController
     @StateObject private var feedbackController: FeedbackController
@@ -35,8 +34,6 @@ struct QuizzlerApp: App {
             RootView()
                 .preferredColorScheme(themeController.colorScheme)
                 .environment(\.locale, languageController.locale)
-
-
                 .environmentObject(themeController)
                 .environmentObject(languageController)
                 .environmentObject(feedbackController)

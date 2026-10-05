@@ -10,7 +10,6 @@ import QuizUI
 import SwiftUI
 
 struct SplashView: View {
-
     @EnvironmentObject private var environment: AppEnvironment
     @EnvironmentObject private var feedback: FeedbackController
     var onFinish: () -> Void

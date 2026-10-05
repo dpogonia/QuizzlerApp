@@ -209,12 +209,8 @@ public final class QuizLogicEngine: QuizLogicProviding {
     public init() {}
 
     public func inject(rm characters: [RMCharacter]) {
-
-
-
         let groupedByImage = Dictionary(grouping: characters, by: { $0.image })
         let filtered = groupedByImage.flatMap { (key: String, value: [RMCharacter]) -> [RMCharacter] in
-
             return value.count == 1 ? value : []
         }
         rmCharacters = filtered.isEmpty ? characters : filtered
