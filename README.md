@@ -33,7 +33,7 @@ iOS-викторина на SwiftUI: смотришь на картинку, ж�
 
 - **Rick and Morty** — персонажи и фото с [rickandmortyapi.com](https://rickandmortyapi.com)
 - **South Park** — персонажи с [spapi.dev](https://spapi.dev), картинки качаются по API
-- **Big Mouth** и **Human Resources** — персонажи с [Fandom](https://bigmouth.fandom.com) / [Wikipedia](https://en.wikipedia.org), фото тоже с API [Fandom](https://bigmouth.fandom.com/api.php) / [Wikipedia](https://www.mediawiki.org/wiki/API:Main_page)
+- **Big Mouth** и **Human Resources** — персонажи и фото с [Fandom](https://bigmouth.fandom.com/api.php)
 
 ## Без сети
 
@@ -77,7 +77,7 @@ open Quizzler.xcodeproj
 
 Собрано на Swift и SwiftUI, пакеты через Swift Package Manager. Сеть — `URLSession`, модели — `Codable`, диск — `FileManager`, настройки и рекорды — `UserDefaults`. Экраны обновляются через Combine. Звук на AVFoundation, вибрации на Core Haptics.
 
-Контент приходит с [Wikipedia](https://en.wikipedia.org) / [Fandom](https://bigmouth.fandom.com) и публичных API: и имена, и фото.
+Контент приходит с публичных API: [rickandmortyapi.com](https://rickandmortyapi.com), [spapi.dev](https://spapi.dev) и [Fandom](https://bigmouth.fandom.com) / [southpark.fandom.com](https://southpark.fandom.com). Имена и фото качаются оттуда, в бандле картинок нет.
 
 В самом таргете в основном экраны и сборка зависимостей. Сеть, файлы и UserDefaults — в `Packages/CoreServices`. Логика квиза — в `QuizServices`. Кнопки и карточки — в `QuizUI`.
 
