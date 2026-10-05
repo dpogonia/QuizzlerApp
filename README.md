@@ -14,10 +14,6 @@ iOS-викторина на SwiftUI: угадываешь имя любимог�
   <img src="Docs/game-south-park-ok.png" width="230" hspace="8" alt="Игра, South Park">
   <img src="Docs/game-rick-and-morty.png" width="230" hspace="8" alt="Игра, Rick and Morty">
 </p>
-<p align="center">
-  <img src="Docs/game-big-mouth.png" width="230" hspace="8" alt="Игра, Big Mouth">
-  <img src="Docs/game-human-resources.png" width="230" hspace="8" alt="Игра, Human Resources">
-</p>
 
 ## Что внутри
 
