@@ -1,3 +1,12 @@
+//
+//  Strings+Generated.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 18.09.2026.
+//
+
+// Файл собирает SwiftGen из Quizzler/Resources/en.lproj/Localizable.strings (настройка в swiftgen.yml).
+
 // swiftlint:disable all
 // Generated using SwiftGen — https://github.com/SwiftGen/SwiftGen
 
@@ -27,14 +36,6 @@ internal enum L10n {
     }
     /// Loading question…
     internal static var loadingQuestion: String { return L10n.tr("Localizable", "game.loading_question", fallback: "Loading question…") }
-    /// Is this movie rated higher than %d?
-    internal static func movieRatingHigher(_ p1: Int) -> String {
-      return L10n.tr("Localizable", "game.movie_rating_higher", p1, fallback: "Is this movie rated higher than %d?")
-    }
-    /// Is this movie rated lower than %d?
-    internal static func movieRatingLower(_ p1: Int) -> String {
-      return L10n.tr("Localizable", "game.movie_rating_lower", p1, fallback: "Is this movie rated lower than %d?")
-    }
     /// NO
     internal static var no: String { return L10n.tr("Localizable", "game.no", fallback: "NO") }
     /// Play again
@@ -62,12 +63,6 @@ internal enum L10n {
       internal static var subtitle: String { return L10n.tr("Localizable", "mode.humanResources.subtitle", fallback: "Monster office") }
       /// Human Resources
       internal static var title: String { return L10n.tr("Localizable", "mode.humanResources.title", fallback: "Human Resources") }
-    }
-    internal enum Movies {
-      /// Guess the movie rating
-      internal static var subtitle: String { return L10n.tr("Localizable", "mode.movies.subtitle", fallback: "Guess the movie rating") }
-      /// IMDb Ratings
-      internal static var title: String { return L10n.tr("Localizable", "mode.movies.title", fallback: "IMDb Ratings") }
     }
     internal enum RickAndMorty {
       /// Wubba Lubba Dub-Dub

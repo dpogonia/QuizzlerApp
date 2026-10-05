@@ -1,7 +1,14 @@
+//
+//  SoundSettingsService.swift
+//  QuizServices
+//
+//  Created by Dmitrii Pogonia on 14.04.2026.
+//
+
 import CoreServices
 import Foundation
 
-public protocol SoundSettingsProviding: AnyObject {
+public protocol SoundSettingsProviding: AnyObject { // нет ключа = включено (строка "off" выключает)
     var isEnabled: Bool { get set }
 }
 
@@ -19,7 +26,7 @@ public final class SoundSettingsService: SoundSettingsProviding {
             storage.string(forKey: storageKey) != "off"
         }
         set {
-            storage.set(newValue ? "on" : "off", forKey: storageKey)
+            storage.set(newValue ? "on" : "off", forKey: storageKey) // не Bool в defaults, чтобы «нет ключа» = вкл
         }
     }
 }

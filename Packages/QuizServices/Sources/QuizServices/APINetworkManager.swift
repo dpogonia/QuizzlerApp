@@ -1,3 +1,10 @@
+//
+//  APINetworkManager.swift
+//  QuizServices
+//
+//  Created by Dmitrii Pogonia on 10.03.2026.
+//
+
 import CoreServices
 import CryptoKit
 import Foundation
@@ -14,7 +21,7 @@ public enum QuizAPIError: LocalizedError {
     }
 }
 
-public protocol QuizNetworking: Sendable {
+public protocol QuizNetworking: Sendable { // списки персонажей и картинки. не общий NetworkServing — знает URL квиза
     func fetchRMCharacters(page: Int) async throws -> [RMCharacter]
     func fetchSPCharacters(page: Int) async throws -> [SPCharacter]
     func fetchBMCharacters() async throws -> [BMCharacter]
@@ -35,7 +42,7 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         self.network = network
         self.parser = parser
         self.imageStore = imageStore
-        imageCache.countLimit = 150
+        imageCache.countLimit = 150 // столько постеров в RAM, дальше NSCache сам выкинет
     }
 
     public func fetchRMCharacters(page: Int) async throws -> [RMCharacter] {
@@ -61,13 +68,13 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         ]
         guard let url = components.url else { throw URLError(.badURL) }
         var request = URLRequest(url: url)
-        request.setValue("Quizzler/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("Quizzler/1.0", forHTTPHeaderField: "User-Agent") // Fandom без UA иногда режет
         let data = try await network.data(for: request)
         let decoded = try parser.decode(FandomCategoryResponse.self, from: data)
         return decoded.query.categorymembers.map { BMCharacter(pageid: $0.pageid, name: $0.title) }
     }
 
-    public func fetchImage(from urlString: String) async throws -> UIImage {
+    public func fetchImage(from urlString: String) async throws -> UIImage { // память → диск (sha256) → сеть. spwiki:/bmwiki: — не прямой URL, ищем thumbnail на вики
         let cacheKey = NSString(string: urlString)
         if let cachedImage = imageCache.object(forKey: cacheKey) {
             return cachedImage
@@ -81,15 +88,9 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
 
         if urlString.lowercased().hasPrefix("spwiki:") {
             let name = String(urlString.dropFirst("spwiki:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
-            do {
-                let image = try await fetchSouthParkCharacterImage(name: name)
-                await remember(image, for: urlString)
-                return image
-            } catch {
-                let image = makeSouthParkFallbackImage()
-                await remember(image, for: urlString)
-                return image
-            }
+            let image = try await fetchSouthParkCharacterImage(name: name)
+            await remember(image, for: urlString)
+            return image
         }
 
         if urlString.lowercased().hasPrefix("bmwiki:") {
@@ -117,7 +118,7 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
     private func imagePath(for urlString: String) -> String {
         let digest = SHA256.hash(data: Data(urlString.utf8))
         let hex = digest.map { String(format: "%02x", $0) }.joined()
-        return "images/\(hex).jpg"
+        return "images/\(hex).jpg" // имя файла из хеша URL, не из имени персонажа (слэши/кириллица)
     }
 
     private func fetchJSON<T: Decodable>(urlString: String) async throws -> T {
@@ -158,7 +159,7 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
         return image
     }
 
-    private func fetchFandomThumbnailURL(baseAPI: String, name: String) async throws -> String {
+    private func fetchFandomThumbnailURL(baseAPI: String, name: String) async throws -> String { // pageimages → thumbnail 600px
         var components = URLComponents(string: baseAPI)!
         components.queryItems = [
             URLQueryItem(name: "action", value: "query"),
@@ -186,24 +187,5 @@ public final class APINetworkManager: QuizNetworking, @unchecked Sendable {
 
     private func fetchSouthParkCharacterThumbnailURL(name: String) async throws -> String {
         try await fetchFandomThumbnailURL(baseAPI: "https://southpark.fandom.com/api.php", name: name)
-    }
-
-    private func makeSouthParkFallbackImage() -> UIImage {
-        let size = CGSize(width: 600, height: 900)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { ctx in
-            UIColor(white: 0.12, alpha: 1.0).setFill()
-            ctx.fill(CGRect(origin: .zero, size: size))
-
-            let iconSize: CGFloat = 220
-            let iconRect = CGRect(
-                x: (size.width - iconSize) / 2,
-                y: (size.height - iconSize) / 2,
-                width: iconSize,
-                height: iconSize
-            )
-            let symbol = UIImage(systemName: "person.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal)
-            symbol?.draw(in: iconRect)
-        }
     }
 }

@@ -1,7 +1,15 @@
+//
+//  StartView.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 10.06.2026.
+//
+
 import QuizServices
 import QuizUI
 import SwiftUI
 
+// Меню режимов. Сам ViewModel не держит — собирает из шкафа и отдаёт StartScreen.
 struct StartView: View {
     @EnvironmentObject private var environment: AppEnvironment
     @EnvironmentObject private var feedback: FeedbackController
@@ -20,7 +28,7 @@ struct StartView: View {
     }
 }
 
-private struct StartScreen: View {
+private struct StartScreen: View { // StateObject здесь, чтобы меню не пересоздалось при перерисовке StartView
     @StateObject private var viewModel: StartViewModel
     @State private var showSettings = false
     @EnvironmentObject private var languageController: LanguageController
@@ -38,7 +46,7 @@ private struct StartScreen: View {
                     .padding(.top, 24)
 
                 VStack(spacing: QuizSpacing.stack) {
-                    if let savedSession = viewModel.menu.savedSession {
+                    if let savedSession = viewModel.menu.savedSession { // карточка «Продолжить», если на диске есть снимок
                         ModeCardView(
                             symbolName: SFSymbol.play,
                             title: L10n.Start.continueGame,
@@ -56,7 +64,7 @@ private struct StartScreen: View {
                         }
                     }
 
-                    ForEach(viewModel.menu.modes, id: \.self) { mode in
+                    ForEach(viewModel.menu.modes, id: \.self) { mode in // четыре режима + шестерёнка ниже
                         ModeCardView(
                             symbolName: mode.symbolName,
                             title: mode.localizedTitle,
@@ -93,11 +101,11 @@ private struct StartScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
-            viewModel.onAppear()
+            viewModel.onAppear() // докачать банки если надо и подтянуть карточку «Продолжить»
         }
         .onChange(of: viewModel.menu.navigateToGame) { _, isPresented in
             if !isPresented {
-                Task { await viewModel.menu.refreshSavedSession() }
+                Task { await viewModel.menu.refreshSavedSession() } // вернулись из игры — снимок мог появиться или стереться
             }
         }
         .navigationDestination(isPresented: $showSettings) {
@@ -107,7 +115,7 @@ private struct StartScreen: View {
             get: { viewModel.menu.navigateToGame },
             set: { viewModel.menu.navigateToGame = $0 }
         )) {
-            if let session = viewModel.menu.session {
+            if let session = viewModel.menu.session { // сессию собрал ModeMenuViewModel.start
                 GameView(viewModel: session)
             }
         }
@@ -121,7 +129,7 @@ private struct StartScreen: View {
         } message: {
             Text(viewModel.menu.errorMessage ?? "")
         }
-        .alert(L10n.Start.resumeTitle, isPresented: Binding(
+        .alert(L10n.Start.resumeTitle, isPresented: Binding( // ткнули режим, у которого уже есть сохранённый раунд
             get: { viewModel.menu.showResumePrompt },
             set: { viewModel.menu.showResumePrompt = $0 }
         )) {
@@ -140,10 +148,9 @@ private struct StartScreen: View {
     }
 }
 
-private extension GameMode {
+private extension GameMode { // иконки карточек, тексты — в QuizLocalization
     var symbolName: String {
         switch self {
-        case .movies: return SFSymbol.film
         case .rickAndMorty: return SFSymbol.atom
         case .southPark: return SFSymbol.mountain
         case .bigMouth: return SFSymbol.smiling

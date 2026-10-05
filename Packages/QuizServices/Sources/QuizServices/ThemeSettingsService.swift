@@ -1,7 +1,14 @@
+//
+//  ThemeSettingsService.swift
+//  QuizServices
+//
+//  Created by Dmitrii Pogonia on 05.04.2026.
+//
+
 import CoreServices
 import Foundation
 
-public protocol ThemeSettingsProviding: AnyObject {
+public protocol ThemeSettingsProviding: AnyObject { // light / dark / system в UserDefaults
     var current: AppTheme { get set }
 }
 
@@ -20,7 +27,7 @@ public final class ThemeSettingsService: ThemeSettingsProviding {
                let value = AppTheme(rawValue: raw) {
                 return value
             }
-            return .system
+            return .system // первый запуск — как в iOS
         }
         set {
             storage.set(newValue.rawValue, forKey: storageKey)

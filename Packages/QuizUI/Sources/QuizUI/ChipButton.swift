@@ -1,6 +1,13 @@
+//
+//  ChipButton.swift
+//  QuizUI
+//
+//  Created by Dmitrii Pogonia on 26.04.2026.
+//
+
 import SwiftUI
 
-public struct ChipButton: View {
+public struct ChipButton: View { // чип настроек: выбран — серый фон
     let title: String
     let isSelected: Bool
     let action: () -> Void
@@ -21,6 +28,6 @@ public struct ChipButton: View {
                 .background(isSelected ? QuizColor.chipSelected : QuizColor.chipIdle)
                 .clipShape(RoundedRectangle(cornerRadius: QuizRadius.chip, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plain) // без системной подсветки кнопки, фон сам рисуем
     }
 }

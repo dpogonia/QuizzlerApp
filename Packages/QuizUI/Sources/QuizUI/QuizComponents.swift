@@ -1,6 +1,13 @@
+//
+//  QuizComponents.swift
+//  QuizUI
+//
+//  Created by Dmitrii Pogonia on 03.05.2026.
+//
+
 import SwiftUI
 
-public struct QuizSectionTitle: View {
+public struct QuizSectionTitle: View { // «Рекорды», «Тема» — крупный заголовок секции
     let text: String
 
     public init(_ text: String) {
@@ -14,7 +21,7 @@ public struct QuizSectionTitle: View {
     }
 }
 
-public struct QuizInfoCard: View {
+public struct QuizInfoCard: View { // строка рекорда: название режима + «лучший счёт…»
     let title: String
     let subtitle: String
 
@@ -40,7 +47,7 @@ public struct QuizInfoCard: View {
     }
 }
 
-public struct QuizLoadingStatus: View {
+public struct QuizLoadingStatus: View { // спиннер под карточками, пока качается банк
     let text: String
 
     public init(text: String) {
@@ -59,7 +66,7 @@ public struct QuizLoadingStatus: View {
     }
 }
 
-public struct QuizHeroIcon: View {
+public struct QuizHeroIcon: View { // попкорн на сплэше и меню
     let systemName: String
     let size: CGFloat
     let color: Color
@@ -77,7 +84,7 @@ public struct QuizHeroIcon: View {
     }
 }
 
-public struct QuizHintText: View {
+public struct QuizHintText: View { // серая подсказка под чипами
     let text: String
 
     public init(_ text: String) {

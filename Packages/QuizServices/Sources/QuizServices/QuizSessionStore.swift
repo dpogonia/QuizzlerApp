@@ -1,7 +1,14 @@
+//
+//  QuizSessionStore.swift
+//  QuizServices
+//
+//  Created by Dmitrii Pogonia on 26.03.2026.
+//
+
 import CoreServices
 import Foundation
 
-public struct QuizSessionSnapshot: Codable, Sendable {
+public struct QuizSessionSnapshot: Codable, Sendable { // всё чтобы открыть тот же вопрос: режим, счёт, таймер, движок, имя
     public var mode: GameMode
     public var currentQuestionIndex: Int
     public var correctAnswers: Int
@@ -10,9 +17,7 @@ public struct QuizSessionSnapshot: Codable, Sendable {
     public var currentCorrectAnswer: Bool
     public var currentCorrectName: String
     public var questionText: String
-    public var movieImageName: String?
     public var imageURL: String?
-    public var movieRoundImages: [String]?
     public var engine: QuizEngineProgress
 
     public init(
@@ -24,9 +29,7 @@ public struct QuizSessionSnapshot: Codable, Sendable {
         currentCorrectAnswer: Bool,
         currentCorrectName: String,
         questionText: String,
-        movieImageName: String?,
         imageURL: String?,
-        movieRoundImages: [String]?,
         engine: QuizEngineProgress
     ) {
         self.mode = mode
@@ -37,9 +40,7 @@ public struct QuizSessionSnapshot: Codable, Sendable {
         self.currentCorrectAnswer = currentCorrectAnswer
         self.currentCorrectName = currentCorrectName
         self.questionText = questionText
-        self.movieImageName = movieImageName
         self.imageURL = imageURL
-        self.movieRoundImages = movieRoundImages
         self.engine = engine
     }
 }
@@ -51,7 +52,7 @@ public protocol QuizSessionPersisting: Sendable {
     func clear() async
 }
 
-public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable {
+public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable { // Application Support: session.json + session_image.jpg
     private enum FileName {
         static let snapshot = "session.json"
         static let image = "session_image.jpg"
@@ -71,7 +72,7 @@ public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable 
         if let questionImage {
             try? await files.write(questionImage, toRelativePath: FileName.image)
         } else {
-            await files.remove(relativePath: FileName.image)
+            await files.remove(relativePath: FileName.image) // вопроса в снимке нет — старый jpeg не оставляем
         }
     }
 
@@ -84,7 +85,7 @@ public final class QuizSessionStore: QuizSessionPersisting, @unchecked Sendable 
         await files.read(fromRelativePath: FileName.image)
     }
 
-    public func clear() async {
+    public func clear() async { // доиграли / новая игра
         await files.remove(relativePath: FileName.snapshot)
         await files.remove(relativePath: FileName.image)
     }

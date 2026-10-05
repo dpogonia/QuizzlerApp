@@ -1,15 +1,23 @@
+//
+//  QuizPreloader.swift
+//  QuizServices
+//
+//  Created by Dmitrii Pogonia on 18.03.2026.
+//
+
 import Foundation
 
-public protocol QuizPreloading: AnyObject, Sendable {
+public protocol QuizPreloading: AnyObject, Sendable { // сплэш качает три колоды параллельно
     func startIfNeeded() async
     func latestError() async -> Error?
+    func allBanksUnavailable() async -> Bool
     func retryFailedLoads() async
     func rmCharacters() async throws -> [RMCharacter]
     func spCharacters() async throws -> [SPCharacter]
     func bmCharacters() async throws -> [BMCharacter]
 }
 
-public actor QuizPreloader: QuizPreloading {
+    public actor QuizPreloader: QuizPreloading { // actor: три Task пишут rmFailed/spFailed без гонок
     private enum Limits {
         static let pageConcurrency = 4
         static let imageConcurrency = 8
@@ -35,7 +43,11 @@ public actor QuizPreloader: QuizPreloading {
         storedError
     }
 
-    public func retryFailedLoads() {
+    public func allBanksUnavailable() -> Bool { // все три упали и кэша нет — сплэш без «Продолжить»
+        rmFailed && spFailed && bmFailed
+    }
+
+    public func retryFailedLoads() { // кнопка «Повторить» на сплэше: сбрасываем только упавшие колоды
         if rmFailed {
             rmTask = nil
             rmFailed = false
@@ -52,7 +64,7 @@ public actor QuizPreloader: QuizPreloading {
         startIfNeeded()
     }
 
-    public func startIfNeeded() {
+    public func startIfNeeded() { // уже запущенный Task не трогаем — повторный вызов со сплэша дешёвый
         if rmTask == nil {
             rmTask = Task {
                 do {
@@ -85,7 +97,7 @@ public actor QuizPreloader: QuizPreloading {
         }
     }
 
-    public func rmCharacters() async throws -> [RMCharacter] {
+    public func rmCharacters() async throws -> [RMCharacter] { // ждём тот же Task, что стартанул сплэш — сеть не качаем второй раз
         if let task = rmTask {
             return try await task.value
         }
@@ -133,7 +145,7 @@ public actor QuizPreloader: QuizPreloading {
         }
     }
 
-    private func loadRMCharactersForGame() async throws -> [RMCharacter] {
+    private func loadRMCharactersForGame() async throws -> [RMCharacter] { // сеть ок → пишем диск. сеть нет → кэш. кэша нет → throw
         do {
             let characters = try await fetchRMCharactersFromNetwork()
             await bankCache.saveRM(characters)
@@ -153,11 +165,11 @@ public actor QuizPreloader: QuizPreloading {
         }
         guard !allRMCharacters.isEmpty else { throw URLError(.badServerResponse) }
 
-        let candidateRM = Array(allRMCharacters.shuffled().prefix(80))
+        let candidateRM = Array(allRMCharacters.shuffled().prefix(80)) // не греем все 800 картинок, хватит пачки
         let readyRM = await filterReady(candidateRM) { character in
             character.image
         }
-        return readyRM.count >= 20 ? readyRM : allRMCharacters
+        return readyRM.count >= 20 ? readyRM : allRMCharacters // меньше 20 с фотками — отдаём сырой список, игра всё равно попробует
     }
 
     private func loadSPCharactersForGame() async throws -> [SPCharacter] {
@@ -212,7 +224,7 @@ public actor QuizPreloader: QuizPreloading {
 
     private func fetchPages<Character: Sendable>(
         _ pages: [Int],
-        maxConcurrent: Int = Limits.pageConcurrency,
+        maxConcurrent: Int = Limits.pageConcurrency, // не больше 4 страниц сразу
         fetch: @escaping @Sendable (Int) async throws -> [Character]
     ) async throws -> [Character] {
         try await withThrowingTaskGroup(of: [Character].self) { group in
@@ -241,7 +253,7 @@ public actor QuizPreloader: QuizPreloading {
 
     private func filterReady<Character: Sendable>(
         _ characters: [Character],
-        maxConcurrent: Int = Limits.imageConcurrency,
+        maxConcurrent: Int = Limits.imageConcurrency, // заранее качаем jpeg, в раунде меньше сюрпризов
         imageResource: @escaping @Sendable (Character) -> String
     ) async -> [Character] {
         let network = self.network

@@ -12,8 +12,6 @@
 "start.ok" = "OK";
 "start.load_failed" = "Не удалось загрузить данные. Попробуйте ещё раз.\n%@";
 
-"mode.movies.title" = "Рейтинг IMDb";
-"mode.movies.subtitle" = "Угадай рейтинг фильма";
 "mode.rickAndMorty.title" = "Rick and Morty";
 "mode.rickAndMorty.subtitle" = "Wubba Lubba Dub-Dub";
 "mode.southPark.title" = "South Park";
@@ -32,8 +30,6 @@
 "game.loading_question" = "Загрузка вопроса…";
 "game.syncing" = "Синхронизация с сервером…";
 "game.load_error" = "Ошибка загрузки данных: %@";
-"game.movie_rating_higher" = "Рейтинг этого фильма больше чем %d?";
-"game.movie_rating_lower" = "Рейтинг этого фильма меньше чем %d?";
 "game.character_name_question" = "Имя этого персонажа — %@?";
 
 "settings.title" = "Настройки";

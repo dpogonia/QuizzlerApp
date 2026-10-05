@@ -1,10 +1,17 @@
+//
+//  SectionCard.swift
+//  QuizUI
+//
+//  Created by Dmitrii Pogonia on 30.04.2026.
+//
+
 import SwiftUI
 
-public struct SectionCard<Content: View>: View {
+public struct SectionCard<Content: View>: View { // блок настроек: заголовок + серая карточка с любым контентом
     let title: String?
     @ViewBuilder let content: Content
 
-    public init(title: String? = nil, @ViewBuilder content: () -> Content) {
+    public init(title: String? = nil, @ViewBuilder content: () -> Content) { // content — чипы или что угодно
         self.title = title
         self.content = content()
     }

@@ -12,8 +12,6 @@
 "start.ok" = "OK";
 "start.load_failed" = "Couldn't load the data. Please try again.\n%@";
 
-"mode.movies.title" = "IMDb Ratings";
-"mode.movies.subtitle" = "Guess the movie rating";
 "mode.rickAndMorty.title" = "Rick and Morty";
 "mode.rickAndMorty.subtitle" = "Wubba Lubba Dub-Dub";
 "mode.southPark.title" = "South Park";
@@ -32,8 +30,6 @@
 "game.loading_question" = "Loading question…";
 "game.syncing" = "Syncing with the server…";
 "game.load_error" = "Couldn't load data: %@";
-"game.movie_rating_higher" = "Is this movie rated higher than %d?";
-"game.movie_rating_lower" = "Is this movie rated lower than %d?";
 "game.character_name_question" = "Is this character’s name %@?";
 
 "settings.title" = "Settings";

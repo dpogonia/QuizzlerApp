@@ -1,6 +1,13 @@
+//
+//  PrimaryAnswerButton.swift
+//  QuizUI
+//
+//  Created by Dmitrii Pogonia on 24.04.2026.
+//
+
 import SwiftUI
 
-public struct PrimaryAnswerButton: View {
+public struct PrimaryAnswerButton: View { // большие Да / Нет
     let title: String
     let isEnabled: Bool
     let action: () -> Void
@@ -25,7 +32,7 @@ public struct PrimaryAnswerButton: View {
                 }
         }
         .buttonStyle(.plain)
-        .opacity(isEnabled ? 1 : 0.5)
+        .opacity(isEnabled ? 1 : 0.5) // пока грузится / уже ответили
         .disabled(!isEnabled)
     }
 }

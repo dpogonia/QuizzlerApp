@@ -1,7 +1,14 @@
+//
+//  HapticSettingsService.swift
+//  QuizServices
+//
+//  Created by Dmitrii Pogonia on 11.04.2026.
+//
+
 import CoreServices
 import Foundation
 
-public protocol HapticSettingsProviding: AnyObject {
+public protocol HapticSettingsProviding: AnyObject { // как звук: пусто = вкл
     var isEnabled: Bool { get set }
 }
 
@@ -19,7 +26,7 @@ public final class HapticSettingsService: HapticSettingsProviding {
             storage.string(forKey: storageKey) != "off"
         }
         set {
-            storage.set(newValue ? "on" : "off", forKey: storageKey)
+            storage.set(newValue ? "on" : "off", forKey: storageKey) // как звук: нет ключа = вкл
         }
     }
 }

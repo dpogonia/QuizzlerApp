@@ -1,7 +1,15 @@
+//
+//  SettingsView.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 20.06.2026.
+//
+
 import QuizServices
 import QuizUI
 import SwiftUI
 
+// Экран настроек. Рекорды и таймер — SettingsViewModel. Тема/язык/звук/хаптик — контроллеры из environment.
 struct SettingsView: View {
     @EnvironmentObject private var environment: AppEnvironment
     @EnvironmentObject private var themeController: ThemeController
@@ -31,7 +39,7 @@ private struct SettingsScreen: View {
             VStack(alignment: .leading, spacing: QuizSpacing.section) {
                 QuizSectionTitle(L10n.Settings.records)
 
-                ForEach(GameMode.allCases, id: \.self) { mode in
+                ForEach(GameMode.allCases, id: \.self) { mode in // рекорд зависит от выбранной длительности таймера
                     QuizInfoCard(
                         title: mode.localizedTitle,
                         subtitle: viewModel.records.recordText(for: mode)
@@ -79,7 +87,7 @@ private struct SettingsScreen: View {
                         QuizHintText(L10n.Settings.soundsHint)
 
                         HStack(spacing: QuizSpacing.compact) {
-                            ChipButton(
+                            ChipButton( // звук выключаем через haptics.playSelection — иначе тап сам себя глушит
                                 title: L10n.Settings.Sounds.on,
                                 isSelected: feedback.sounds.isEnabled
                             ) {

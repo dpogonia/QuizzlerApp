@@ -1,7 +1,15 @@
+//
+//  SettingsViewModel.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 22.06.2026.
+//
+
 import Combine
 import QuizServices
 import SwiftUI
 
+// Тексты рекордов. duration сюда прилетает с чипов таймера, потому что рекорд хранится отдельно на 5с / 10с / …
 @MainActor
 final class RecordsViewModel: ObservableObject {
     private let scoreStore: any BestScoreStoring
@@ -32,7 +40,7 @@ final class RecordsViewModel: ObservableObject {
 }
 
 @MainActor
-final class TimerSettingsViewModel: ObservableObject {
+final class TimerSettingsViewModel: ObservableObject { // чипы сложности, пишет в QuizTimerSettingsService
     private let timerSettings: any QuizTimerSettingsProviding
 
     @Published var selectedDuration: Int
@@ -53,7 +61,7 @@ final class TimerSettingsViewModel: ObservableObject {
 }
 
 @MainActor
-final class SettingsViewModel: ObservableObject {
+final class SettingsViewModel: ObservableObject { // склейка: сменили секунды → обновить подписи рекордов
     let records: RecordsViewModel
     let timer: TimerSettingsViewModel
 

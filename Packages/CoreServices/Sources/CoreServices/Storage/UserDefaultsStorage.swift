@@ -1,9 +1,16 @@
+//
+//  UserDefaultsStorage.swift
+//  CoreServices
+//
+//  Created by Dmitrii Pogonia on 21.02.2026.
+//
+
 import Foundation
 
-public final class UserDefaultsStorage: KeyValueStoring, @unchecked Sendable {
+public final class UserDefaultsStorage: KeyValueStoring, @unchecked Sendable { // обёртка, чтобы сервисы не импортировали UserDefaults напрямую
     private let defaults: UserDefaults
 
-    public init(defaults: UserDefaults = .standard) {
+    public init(defaults: UserDefaults = .standard) { // .standard — обычные настройки приложения
         self.defaults = defaults
     }
 
@@ -11,7 +18,7 @@ public final class UserDefaultsStorage: KeyValueStoring, @unchecked Sendable {
         defaults.set(value, forKey: key)
     }
 
-    public func integer(forKey key: String) -> Int {
+    public func integer(forKey key: String) -> Int { // нет ключа → 0, это системное поведение UserDefaults
         defaults.integer(forKey: key)
     }
 

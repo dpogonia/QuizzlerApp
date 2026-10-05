@@ -1,7 +1,15 @@
+//
+//  StartViewModel.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 12.06.2026.
+//
+
 import Combine
 import QuizServices
 import SwiftUI
 
+// Логика меню: банк, новая игра, «Продолжить», диалог resume. StartView только рисует.
 @MainActor
 final class ModeMenuViewModel: ObservableObject {
     private let preloader: any QuizPreloading
@@ -11,7 +19,7 @@ final class ModeMenuViewModel: ObservableObject {
     private let sessionStore: any QuizSessionPersisting
     private let feedback: any FeedbackPlaying
 
-    let modes: [GameMode] = [.movies, .rickAndMorty, .southPark, .bigMouth, .humanResources]
+    let modes: [GameMode] = [.rickAndMorty, .southPark, .bigMouth, .humanResources]
 
     @Published var isLoading = false
     @Published var loadingMode: GameMode?
@@ -55,7 +63,7 @@ final class ModeMenuViewModel: ObservableObject {
 
     func select(_ mode: GameMode) {
         feedback.playTap()
-        if let savedSession, savedSession.mode == mode {
+        if let savedSession, savedSession.mode == mode { // тот же режим, что в снимке — спросим, не затирать ли
             resumePromptMode = mode
             showResumePrompt = true
             return
@@ -74,7 +82,7 @@ final class ModeMenuViewModel: ObservableObject {
     }
 
     private func start(mode: GameMode, snapshot: QuizSessionSnapshot?) {
-        guard !isLoading else { return }
+        guard !isLoading else { return } // пока крутится спиннер на карточке — второй тап игнор
         isLoading = true
         loadingMode = mode
 
@@ -85,8 +93,6 @@ final class ModeMenuViewModel: ObservableObject {
                     game.prepareRestore(snapshot)
                 } else {
                     switch mode {
-                    case .movies:
-                        break
                     case .rickAndMorty:
                         game.configureWithRMCharacters(try await preloader.rmCharacters())
                     case .southPark:
@@ -94,7 +100,7 @@ final class ModeMenuViewModel: ObservableObject {
                     case .bigMouth:
                         game.configureWithBMCharacters(try await preloader.bmCharacters())
                     case .humanResources:
-                        game.configureWithHRCharacters(try await preloader.bmCharacters())
+                        game.configureWithHRCharacters(try await preloader.bmCharacters()) // HR берёт тот же Fandom-банк, что Big Mouth
                     }
                 }
                 session = game
@@ -122,7 +128,7 @@ final class ModeMenuViewModel: ObservableObject {
 }
 
 @MainActor
-final class StartViewModel: ObservableObject {
+final class StartViewModel: ObservableObject { // оболочка: SwiftUI подписан на неё, внутри живёт menu
     let menu: ModeMenuViewModel
 
     private var cancellables = Set<AnyCancellable>()

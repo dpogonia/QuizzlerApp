@@ -1,9 +1,15 @@
+//
+//  PosterFrameView.swift
+//  QuizUI
+//
+//  Created by Dmitrii Pogonia on 22.04.2026.
+//
+
 import SwiftUI
 import UIKit
 
-public struct PosterFrameView: View {
+public struct PosterFrameView: View { // рамка 2:3, UIImage?, бордер, спиннер. API не знает
     let image: UIImage?
-    let fillContent: Bool
     let borderColor: Color
     let isLoading: Bool
 
@@ -11,12 +17,10 @@ public struct PosterFrameView: View {
 
     public init(
         image: UIImage?,
-        fillContent: Bool,
         borderColor: Color,
         isLoading: Bool
     ) {
         self.image = image
-        self.fillContent = fillContent
         self.borderColor = borderColor
         self.isLoading = isLoading
     }
@@ -29,7 +33,7 @@ public struct PosterFrameView: View {
                 if let image {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: fillContent ? .fill : .fit)
+                        .aspectRatio(contentMode: .fill)
                         .frame(width: posterSize.width, height: posterSize.height)
                         .clipped()
                 }
@@ -43,16 +47,16 @@ public struct PosterFrameView: View {
             .clipShape(RoundedRectangle(cornerRadius: QuizRadius.poster, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: QuizRadius.poster, style: .continuous)
-                    .strokeBorder(borderColor, lineWidth: 16)
+                    .strokeBorder(borderColor, lineWidth: 16) // толстая рамка: белая / зелёная / красная
             }
-            .frame(width: geo.size.width, height: geo.size.height, alignment: .center)
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .center) // постер по центру дырки
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private static func fittedSize(in container: CGSize) -> CGSize {
         guard container.width > 0, container.height > 0 else { return .zero }
-        if container.width / container.height > aspectRatio {
+        if container.width / container.height > aspectRatio { // контейнер шире постера — упираемся в высоту
             return CGSize(width: container.height * aspectRatio, height: container.height)
         }
         return CGSize(width: container.width, height: container.width / aspectRatio)

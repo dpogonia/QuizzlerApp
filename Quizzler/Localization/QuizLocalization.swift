@@ -1,7 +1,15 @@
+//
+//  QuizLocalization.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 12.08.2026.
+//
+
 import Foundation
 import QuizServices
 
-enum QuizFormatters {
+// удобства вокруг переводов, не сами фразы.
+enum QuizFormatters { // числа как в выбранной локали: 3/20, «5 с» / «5s»
     static func scorePair(correct: Int, total: Int) -> String {
         decimal.locale = AppLocalization.locale
         return "\(decimal.string(from: NSNumber(value: correct)) ?? "\(correct)")/\(decimal.string(from: NSNumber(value: total)) ?? "\(total)")"
@@ -31,10 +39,10 @@ enum QuizFormatters {
     }()
 }
 
-extension GameMode {
+extension GameMode { // расширения GameMode / AppTheme / AppLanguage — заголовок карточки режима, «Светлая», «Русский» через L10n, чтобы в меню не копировать switch по строкам.
+
     var localizedTitle: String {
         switch self {
-        case .movies: return L10n.Mode.Movies.title
         case .rickAndMorty: return L10n.Mode.RickAndMorty.title
         case .southPark: return L10n.Mode.SouthPark.title
         case .bigMouth: return L10n.Mode.BigMouth.title
@@ -44,7 +52,6 @@ extension GameMode {
 
     var localizedSubtitle: String {
         switch self {
-        case .movies: return L10n.Mode.Movies.subtitle
         case .rickAndMorty: return L10n.Mode.RickAndMorty.subtitle
         case .southPark: return L10n.Mode.SouthPark.subtitle
         case .bigMouth: return L10n.Mode.BigMouth.subtitle

@@ -1,7 +1,14 @@
+//
+//  FeedbackController.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 18.07.2026.
+//
+
 import Combine
 
 @MainActor
-protocol FeedbackPlaying: AnyObject {
+protocol FeedbackPlaying: AnyObject { // игра и меню зовут это, а не два контроллера по отдельности
     func playTap()
     func playSelection()
     func playSuccess()
@@ -14,7 +21,7 @@ protocol FeedbackPlaying: AnyObject {
 }
 
 @MainActor
-final class FeedbackController: ObservableObject, FeedbackPlaying {
+final class FeedbackController: ObservableObject, FeedbackPlaying { // прокси: почти каждый метод = haptics + sounds
     let haptics: HapticController
     let sounds: SoundController
 

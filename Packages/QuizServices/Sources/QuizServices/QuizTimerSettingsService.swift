@@ -1,7 +1,14 @@
+//
+//  QuizTimerSettingsService.swift
+//  QuizServices
+//
+//  Created by Dmitrii Pogonia on 30.03.2026.
+//
+
 import CoreServices
 import Foundation
 
-public protocol QuizTimerSettingsProviding: AnyObject {
+public protocol QuizTimerSettingsProviding: AnyObject { // секунды на вопрос, UserDefaults
     var availableDurations: [Int] { get }
     var currentDuration: Int { get set }
 }
@@ -10,7 +17,7 @@ public final class QuizTimerSettingsService: QuizTimerSettingsProviding {
     private let storage: any KeyValueStoring
 
     private let storageKey = "quiz_timer_duration"
-    public let availableDurations: [Int] = [1, 3, 5, 7, 10]
+    public let availableDurations: [Int] = [1, 3, 5, 7, 10] // чипы в настройках
 
     public init(storage: any KeyValueStoring) {
         self.storage = storage
@@ -19,7 +26,7 @@ public final class QuizTimerSettingsService: QuizTimerSettingsProviding {
     public var currentDuration: Int {
         get {
             let value = storage.integer(forKey: storageKey)
-            return availableDurations.contains(value) ? value : 10
+            return availableDurations.contains(value) ? value : 10 // битое значение в defaults → 10
         }
         set {
             guard availableDurations.contains(newValue) else { return }

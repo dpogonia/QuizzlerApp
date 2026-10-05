@@ -1,5 +1,13 @@
+//
+//  RootView.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 07.02.2026.
+//
+
 import SwiftUI
 
+// RootView — вход. Сначала сплэш, потом меню в NavigationStack. Не содержит логики квиза.
 struct RootView: View {
     @State private var showSplash = true
 

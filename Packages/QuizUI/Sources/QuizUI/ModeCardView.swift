@@ -1,6 +1,13 @@
+//
+//  ModeCardView.swift
+//  QuizUI
+//
+//  Created by Dmitrii Pogonia on 28.04.2026.
+//
+
 import SwiftUI
 
-public struct ModeCardView: View {
+public struct ModeCardView: View { // карточка режима / «Продолжить» / настройки. тексты приходят снаружи
     let symbolName: String
     let title: String
     let subtitle: String
@@ -54,9 +61,9 @@ public struct ModeCardView: View {
                         .controlSize(.regular)
                 }
             }
-            .opacity(isDimmed ? 0.6 : 1)
+            .opacity(isDimmed ? 0.6 : 1) // другой режим грузится — карточки тусклые
         }
         .buttonStyle(.plain)
-        .disabled(isDimmed && !showsSpinner)
+        .disabled(isDimmed && !showsSpinner) // крутится эта карточка — её ещё можно «видеть», остальные не жмутся
     }
 }

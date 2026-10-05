@@ -1,8 +1,16 @@
+//
+//  HapticController.swift
+//  Quizzler
+//
+//  Created by Dmitrii Pogonia on 10.07.2026.
+//
+
 import Combine
 import CoreHaptics
 import QuizServices
 import UIKit
 
+// Вибрации. Тап/успех/ошибка — UIKit generators. Последние 3 сек вопроса — тихий непрерывный паттерн Core Haptics.
 @MainActor
 final class HapticController: ObservableObject {
     private let settings: any HapticSettingsProviding
@@ -70,7 +78,7 @@ final class HapticController: ObservableObject {
         guard isEnabled, !isUrgencyActive else { return }
         isUrgencyActive = true
 
-        if supportsEngine, startEngineUrgency() {
+        if supportsEngine, startEngineUrgency() { // нет Taptic Engine — дёргаем лёгкий impact по таймеру
             return
         }
 
