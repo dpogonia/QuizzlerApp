@@ -69,7 +69,9 @@ struct GameView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
-                feedback.startGameMusic()
+                if !viewModel.score.showResult {
+                    feedback.startGameMusic()
+                }
             } else {
                 feedback.pauseGameMusic()
             }

@@ -132,6 +132,7 @@ final class QuizSessionViewModel: ObservableObject {
     func playAgain() {
         feedback.playTap()
         startSession()
+        feedback.startGameMusic()
     }
 
     func leaveToMenu() {
@@ -363,6 +364,8 @@ final class QuizSessionViewModel: ObservableObject {
                 for: activeMode
             )
             Task { await sessionStore.clear() }
+            feedback.stopGameMusic()
+            feedback.playSuccess()
             store.dispatch(
                 .finishRound(
                     title: L10n.Game.roundOver,
